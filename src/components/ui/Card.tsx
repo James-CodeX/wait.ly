@@ -1,0 +1,32 @@
+import { motion } from 'framer-motion';
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+  glass?: boolean;
+}
+
+export default function Card({
+  children,
+  className = '',
+  hover = false,
+  glass = false,
+}: CardProps) {
+  const Component = hover ? motion.div : 'div';
+  const motionProps = hover
+    ? {
+        whileHover: { y: -4, boxShadow: '0 10px 15px -3px rgba(5, 150, 105, 0.1), 0 4px 6px -2px rgba(5, 150, 105, 0.05)' },
+        transition: { duration: 0.2 },
+      }
+    : {};
+
+  return (
+    <Component
+      className={`${glass ? 'glass-mint' : 'bg-mint-50'} rounded-2xl shadow-mint p-6 ${className}`}
+      {...motionProps}
+    >
+      {children}
+    </Component>
+  );
+}

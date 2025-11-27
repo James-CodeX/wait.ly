@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-mint-900;
+  }
+}
+
+@layer utilities {
+  .glass-mint {
+    background: rgba(236, 253, 245, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(6, 78, 59, 0.1);
+  }
+
+  .shadow-mint {
+    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.1), 0 2px 4px -1px rgba(5, 150, 105, 0.06);
+  }
+
+  .shadow-mint-lg {
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.1), 0 4px 6px -2px rgba(5, 150, 105, 0.05);
+  }
+}
