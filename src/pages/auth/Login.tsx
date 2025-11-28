@@ -1,22 +1,29 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { useToast } from '../../components/ui/Toast';
-import { mockApi } from '../../utils/mockApi';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { signIn, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,15 +39,16 @@ export default function Login() {
     }
 
     setLoading(true);
-    try {
-      await mockApi.login(formData.email, formData.password);
-      showToast('Successfully logged in!', 'success');
-      navigate('/projects');
-    } catch (error) {
-      showToast('Invalid credentials', 'error');
-    } finally {
-      setLoading(false);
+    const { error } = await signIn(formData.email, formData.password);
+    setLoading(false);
+
+    if (error) {
+      showToast(error.message, 'error');
+      return;
     }
+
+    showToast('Successfully logged in!', 'success');
+    navigate('/dashboard');
   };
 
   return (

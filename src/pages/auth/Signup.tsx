@@ -1,16 +1,17 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { useToast } from '../../components/ui/Toast';
-import { mockApi } from '../../utils/mockApi';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Signup() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { signUp, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +20,12 @@ export default function Signup() {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,15 +49,16 @@ export default function Signup() {
     }
 
     setLoading(true);
-    try {
-      await mockApi.signup(formData.name, formData.email, formData.password);
-      showToast('Account created successfully!', 'success');
-      navigate('/projects');
-    } catch (error) {
-      showToast('Failed to create account', 'error');
-    } finally {
-      setLoading(false);
+    const { error } = await signUp(formData.email, formData.password, formData.name);
+    setLoading(false);
+
+    if (error) {
+      showToast(error.message, 'error');
+      return;
     }
+
+    showToast('Account created successfully!', 'success');
+    navigate('/dashboard');
   };
 
   return (
