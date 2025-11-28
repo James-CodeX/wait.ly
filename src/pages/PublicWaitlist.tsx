@@ -1,20 +1,46 @@
 import { motion } from 'framer-motion';
 import { Mail, Users, CheckCircle, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
-import { mockApi } from '../utils/mockApi';
 import { useToast } from '../components/ui/Toast';
+import { publicWaitlistService, WaitlistEntry, ProjectInfo } from '../services/publicWaitlist';
 
 export default function PublicWaitlist() {
+  const { waitlistId } = useParams<{ waitlistId: string }>();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
   const { showToast } = useToast();
+  
+  const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [position, setPosition] = useState(0);
+  const [entry, setEntry] = useState<WaitlistEntry | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    loadProjectInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waitlistId]);
+
+  const loadProjectInfo = async () => {
+    if (!waitlistId) return;
+    
+    setPageLoading(true);
+    try {
+      const info = await publicWaitlistService.getProjectInfo(waitlistId);
+      setProjectInfo(info);
+    } catch (error) {
+      console.error('Error loading project:', error);
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,19 +54,60 @@ export default function PublicWaitlist() {
       setErrors(prev => ({ ...prev, email: 'Email is required' }));
       return;
     }
+    if (!waitlistId) {
+      showToast('Invalid waitlist', 'error');
+      return;
+    }
 
     setLoading(true);
     try {
-      const entry = await mockApi.addEntry(name, email);
-      setPosition(entry.position);
+      const newEntry = await publicWaitlistService.joinWaitlist(
+        waitlistId,
+        name,
+        email,
+        undefined,
+        referralCode || undefined
+      );
+      setEntry(newEntry);
       setSubmitted(true);
       showToast('Successfully joined the waitlist!', 'success');
     } catch (error) {
-      showToast('Failed to join waitlist', 'error');
+      if (error instanceof Error && error.message === 'Email already registered') {
+        setErrors({ email: 'This email is already registered' });
+        showToast('Email already registered', 'error');
+      } else {
+        showToast('Failed to join waitlist', 'error');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const copyReferralLink = () => {
+    if (!entry) return;
+    const link = `${window.location.origin}/public/${waitlistId}?ref=${entry.referral_code}`;
+    navigator.clipboard.writeText(link);
+    showToast('Referral link copied!', 'success');
+  };
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+        <p className="text-mint-900/70">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!projectInfo) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+        <Card className="text-center">
+          <h2 className="text-2xl font-bold text-mint-900 mb-2">Waitlist Not Found</h2>
+          <p className="text-mint-900/70">This waitlist does not exist or has been removed.</p>
+        </Card>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -88,7 +155,7 @@ export default function PublicWaitlist() {
               <Users className="w-6 h-6" />
               <div className="text-left">
                 <p className="text-sm opacity-90">Your Position</p>
-                <p className="text-3xl font-bold">#{position}</p>
+                <p className="text-3xl font-bold">#{entry?.position || 0}</p>
               </div>
             </motion.div>
 
@@ -114,8 +181,12 @@ export default function PublicWaitlist() {
                 Share your unique referral link and get priority access
               </p>
               <div className="flex gap-2">
-                <Input value="https://waitly.app/ref/abc123" readOnly className="flex-1" />
-                <Button>Copy Link</Button>
+                <Input
+                  value={`${window.location.origin}/public/${waitlistId}?ref=${entry?.referral_code}`}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button onClick={copyReferralLink}>Copy Link</Button>
               </div>
             </motion.div>
           </Card>
@@ -141,7 +212,7 @@ export default function PublicWaitlist() {
             <div className="w-16 h-16 bg-mint-600 rounded-2xl flex items-center justify-center">
               <Users className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-mint-900">Wait.ly</h1>
+            <h1 className="text-4xl font-bold text-mint-900">{projectInfo.name}</h1>
           </motion.div>
 
           <motion.h2
@@ -150,7 +221,7 @@ export default function PublicWaitlist() {
             transition={{ delay: 0.2 }}
             className="text-3xl md:text-4xl font-bold text-mint-900 mb-4"
           >
-            Join Our Exclusive Waitlist
+            {projectInfo.description || 'Join Our Exclusive Waitlist'}
           </motion.h2>
 
           <motion.p
@@ -193,7 +264,7 @@ export default function PublicWaitlist() {
               </Button>
 
               <p className="text-center text-sm text-mint-900/70">
-                Join <strong>1,247</strong> others already on the list
+                Join <strong>{projectInfo.total_signups.toLocaleString()}</strong> others already on the list
               </p>
             </form>
           </Card>
