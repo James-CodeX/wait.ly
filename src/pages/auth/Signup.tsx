@@ -45,7 +45,7 @@ export default function Signup() {
     try {
       await mockApi.signup(formData.name, formData.email, formData.password);
       showToast('Account created successfully!', 'success');
-      navigate('/dashboard');
+      navigate('/projects');
     } catch (error) {
       showToast('Failed to create account', 'error');
     } finally {

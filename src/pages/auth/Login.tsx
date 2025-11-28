@@ -35,7 +35,7 @@ export default function Login() {
     try {
       await mockApi.login(formData.email, formData.password);
       showToast('Successfully logged in!', 'success');
-      navigate('/dashboard');
+      navigate('/projects');
     } catch (error) {
       showToast('Invalid credentials', 'error');
     } finally {

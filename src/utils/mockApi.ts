@@ -24,6 +24,7 @@ export interface Waitlist {
   todaySignups: number;
   weekSignups: number;
   createdAt: string;
+  ownerId: string;
 }
 
 export interface User {
@@ -32,6 +33,43 @@ export interface User {
   name: string;
   createdAt: string;
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  totalSignups: number;
+  createdAt: string;
+  lastUpdated: string;
+}
+
+// Generate mock projects
+const generateMockProjects = (): Project[] => [
+  {
+    id: 'project-1',
+    name: 'My Awesome SaaS',
+    description: 'Next-gen productivity tool for teams',
+    totalSignups: 47,
+    createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+    lastUpdated: new Date().toISOString(),
+  },
+  {
+    id: 'project-2',
+    name: 'Mobile App Launch',
+    description: 'Revolutionary fitness tracking app',
+    totalSignups: 128,
+    createdAt: new Date(Date.now() - 45 * 86400000).toISOString(),
+    lastUpdated: new Date(Date.now() - 2 * 86400000).toISOString(),
+  },
+  {
+    id: 'project-3',
+    name: 'E-commerce Platform',
+    description: 'AI-powered shopping experience',
+    totalSignups: 203,
+    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
+    lastUpdated: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+];
 
 // Generate mock waitlist entries
 const generateMockEntries = (count: number): WaitlistEntry[] => {
@@ -49,7 +87,9 @@ const generateMockEntries = (count: number): WaitlistEntry[] => {
 };
 
 // Mock database
+let mockProjects = generateMockProjects();
 let mockEntries = generateMockEntries(47);
+let currentProjectId: string | null = null;
 let mockUser: User = {
   id: 'user-1',
   email: 'demo@wait.ly',
@@ -65,6 +105,7 @@ let mockWaitlist: Waitlist = {
   todaySignups: 3,
   weekSignups: 12,
   createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+  ownerId: 'user-1',
 };
 
 // API functions
@@ -82,6 +123,62 @@ export const mockApi = {
     await delay(800);
     mockUser = { ...mockUser, name, email };
     return fakeFetch({ user: mockUser, success: true });
+  },
+
+  // Projects
+  getProjects: async () => {
+    await delay(400);
+    return fakeFetch(mockProjects);
+  },
+
+  getProject: async (projectId: string) => {
+    await delay(300);
+    const project = mockProjects.find(p => p.id === projectId);
+    if (!project) throw new Error('Project not found');
+    return fakeFetch(project);
+  },
+
+  createProject: async (name: string, description: string) => {
+    await delay(600);
+    const newProject: Project = {
+      id: `project-${Date.now()}`,
+      name,
+      description,
+      totalSignups: 0,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    };
+    mockProjects.unshift(newProject);
+    return fakeFetch(newProject);
+  },
+
+  selectProject: (projectId: string) => {
+    currentProjectId = projectId;
+    const project = mockProjects.find(p => p.id === projectId);
+    if (!project) return;
+
+    // Generate entries based on project's totalSignups
+    const totalSignups = project.totalSignups;
+    mockEntries = generateMockEntries(totalSignups);
+    
+    // Calculate stats based on the entries
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    const todaySignups = mockEntries.filter(e => new Date(e.createdAt) >= todayStart).length;
+    const weekSignups = mockEntries.filter(e => new Date(e.createdAt) >= weekStart).length;
+    
+    mockWaitlist = {
+      ...mockWaitlist,
+      totalSignups,
+      todaySignups,
+      weekSignups,
+    };
+  },
+
+  getCurrentProject: () => {
+    return currentProjectId;
   },
 
   // Waitlist

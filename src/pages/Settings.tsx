@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Save, Upload, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { Save, Trash2, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -7,17 +7,14 @@ import Input from '../components/ui/Input';
 import Modal from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 
-type Tab = 'general' | 'branding' | 'fields' | 'email' | 'integrations' | 'danger';
+type Tab = 'email' | 'integrations' | 'danger';
 
 export default function Settings() {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<Tab>('general');
+  const [activeTab, setActiveTab] = useState<Tab>('email');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'general', label: 'General' },
-    { id: 'branding', label: 'Branding' },
-    { id: 'fields', label: 'Custom Fields' },
     { id: 'email', label: 'Email Config' },
     { id: 'integrations', label: 'Integrations' },
     { id: 'danger', label: 'Danger Zone' },
@@ -59,136 +56,6 @@ export default function Settings() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {activeTab === 'general' && (
-              <Card>
-                <h2 className="text-2xl font-bold text-mint-900 mb-6">General Settings</h2>
-                <div className="space-y-6">
-                  <Input label="Waitlist Name" value="My Product Launch" />
-                  <div>
-                    <label className="block text-sm font-medium text-mint-900 mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      rows={4}
-                      defaultValue="Join our exclusive waitlist for early access!"
-                      className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600 resize-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-mint-900 mb-2">
-                      Logo
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 bg-mint-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
-                        W
-                      </div>
-                      <Button variant="secondary">
-                        <Upload className="w-4 h-4" />
-                        Upload Logo
-                      </Button>
-                    </div>
-                  </div>
-                  <Button onClick={handleSave}>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </Button>
-                </div>
-              </Card>
-            )}
-
-            {activeTab === 'branding' && (
-              <Card>
-                <h2 className="text-2xl font-bold text-mint-900 mb-6">Branding</h2>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-mint-900 mb-2">
-                      Primary Color
-                    </label>
-                    <div className="flex gap-3 items-center">
-                      <input
-                        type="color"
-                        defaultValue="#059669"
-                        className="w-16 h-12 rounded-xl cursor-pointer border-2 border-mint-600/20"
-                      />
-                      <Input value="#059669" className="flex-1" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-mint-900 mb-2">
-                      Secondary Color
-                    </label>
-                    <div className="flex gap-3 items-center">
-                      <input
-                        type="color"
-                        defaultValue="#ECFDF5"
-                        className="w-16 h-12 rounded-xl cursor-pointer border-2 border-mint-600/20"
-                      />
-                      <Input value="#ECFDF5" className="flex-1" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-mint-900 mb-2">
-                      Custom CSS
-                    </label>
-                    <textarea
-                      rows={8}
-                      placeholder=".waitlist-form { /* Your custom styles */ }"
-                      className="w-full px-4 py-3 bg-mint-900 text-mint-100 border-2 border-mint-600/20 rounded-xl focus:outline-none focus:border-mint-600 resize-none font-mono text-sm"
-                    />
-                  </div>
-
-                  <Button onClick={handleSave}>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </Button>
-                </div>
-              </Card>
-            )}
-
-            {activeTab === 'fields' && (
-              <Card>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-mint-900">Custom Fields</h2>
-                  <Button>
-                    <Plus className="w-4 h-4" />
-                    Add Field
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    { name: 'Company', type: 'Text', required: false },
-                    { name: 'Phone Number', type: 'Phone', required: false },
-                    { name: 'Referral Code', type: 'Text', required: false },
-                  ].map((field, index) => (
-                    <motion.div
-                      key={field.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-4 bg-mint-50 rounded-xl"
-                    >
-                      <div>
-                        <p className="font-medium text-mint-900">{field.name}</p>
-                        <p className="text-sm text-mint-900/70">
-                          {field.type} • {field.required ? 'Required' : 'Optional'}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="secondary" className="text-sm">
-                          Edit
-                        </Button>
-                        <Button variant="secondary" className="text-sm text-red-500 border-red-500">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
             {activeTab === 'email' && (
               <Card>
                 <h2 className="text-2xl font-bold text-mint-900 mb-6">Email Configuration</h2>

@@ -4,6 +4,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import Waitlist from './pages/Waitlist';
 import Embed from './pages/Embed';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/signup" element={<Signup />} />
+          <Route path="/projects" element={<Projects />} />
           <Route path="/public/:waitlistId" element={<PublicWaitlist />} />
 
           <Route element={<DashboardLayout />}>

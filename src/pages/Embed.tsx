@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Upload, Plus, Trash2, Save } from 'lucide-react';
 import { useState } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -12,11 +12,28 @@ export default function Embed() {
   const [activeTab, setActiveTab] = useState<'inline' | 'popup' | 'slide-in'>('inline');
   const [config, setConfig] = useState({
     heading: 'Join Our Waitlist',
+    description: 'Be the first to know when we launch. Join our exclusive waitlist!',
     buttonText: 'Join Now',
     successMessage: 'Thanks for joining!',
     primaryColor: '#059669',
+    secondaryColor: '#ECFDF5',
     showPosition: true,
+    showLogo: true,
   });
+
+  const [customFields, setCustomFields] = useState<Array<{ id: string; name: string; type: string; required: boolean; enabled: boolean }>>([]);
+  
+  const [showCustomFieldInput, setShowCustomFieldInput] = useState(false);
+  const [newFieldName, setNewFieldName] = useState('');
+
+  const presetFields = [
+    { name: 'Company', type: 'Text', placeholder: 'Company name' },
+    { name: 'Phone Number', type: 'Phone', placeholder: 'Phone number' },
+    { name: 'Job Title', type: 'Text', placeholder: 'Your role' },
+    { name: 'Company Size', type: 'Select', placeholder: 'Select size' },
+    { name: 'Referral Code', type: 'Text', placeholder: 'Referral code' },
+    { name: 'LinkedIn URL', type: 'URL', placeholder: 'LinkedIn profile' },
+  ];
 
   const embedCode = `<script src="https://waitly.app/embed.js"></script>
 <div data-waitly-widget="${activeTab}"
@@ -32,17 +49,143 @@ export default function Embed() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSave = () => {
+    showToast('Configuration saved successfully!', 'success');
+  };
+
+  const handleTogglePresetField = (fieldName: string) => {
+    const preset = presetFields.find(f => f.name === fieldName);
+    if (!preset) return;
+
+    const existingField = customFields.find(f => f.name === fieldName);
+    
+    if (existingField) {
+      // Remove field
+      setCustomFields(customFields.filter(f => f.name !== fieldName));
+      showToast(`${fieldName} removed`, 'success');
+    } else {
+      // Add field
+      const newField = {
+        id: Date.now().toString(),
+        name: preset.name,
+        type: preset.type,
+        required: false,
+        enabled: true,
+      };
+      setCustomFields([...customFields, newField]);
+      showToast(`${fieldName} added`, 'success');
+    }
+  };
+
+  const handleAddCustomField = () => {
+    if (!newFieldName.trim()) {
+      showToast('Please enter a field name', 'error');
+      return;
+    }
+
+    const newField = {
+      id: Date.now().toString(),
+      name: newFieldName,
+      type: 'Text',
+      required: false,
+      enabled: true,
+    };
+    setCustomFields([...customFields, newField]);
+    setNewFieldName('');
+    setShowCustomFieldInput(false);
+    showToast('Custom field added', 'success');
+  };
+
+  const handleDeleteField = (id: string) => {
+    setCustomFields(customFields.filter(f => f.id !== id));
+    showToast('Field removed', 'success');
+  };
+
+  const isFieldActive = (fieldName: string) => {
+    return customFields.some(f => f.name === fieldName);
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-mint-900 mb-2">Embed Generator</h1>
-        <p className="text-mint-900/70">Customize and embed your waitlist anywhere</p>
+        <h1 className="text-3xl font-bold text-mint-900 mb-2">Embed & Customize</h1>
+        <p className="text-mint-900/70">Design your waitlist form and embed it anywhere</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-6">
+          {/* Branding */}
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-4">Configuration</h3>
+            <h3 className="text-xl font-semibold text-mint-900 mb-4">Branding</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-mint-900 mb-2">
+                  Logo
+                </label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-mint-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                    W
+                  </div>
+                  <Button variant="secondary" size="sm">
+                    <Upload className="w-4 h-4" />
+                    Upload
+                  </Button>
+                </div>
+              </div>
+
+              <Input
+                label="Heading"
+                value={config.heading}
+                onChange={(e) => setConfig({ ...config, heading: e.target.value })}
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-mint-900 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={config.description}
+                  onChange={(e) => setConfig({ ...config, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mint-900 mb-2">
+                  Primary Color
+                </label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="color"
+                    value={config.primaryColor}
+                    onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                    className="w-16 h-12 rounded-xl cursor-pointer border-2 border-mint-600/20"
+                  />
+                  <Input
+                    value={config.primaryColor}
+                    onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mint-900 mb-2">
+                  Custom CSS
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder=".waitlist-form { /* Your custom styles */ }"
+                  className="w-full px-4 py-3 bg-mint-900 text-mint-100 border-2 border-mint-600/20 rounded-xl focus:outline-none focus:border-mint-600 resize-none font-mono text-sm"
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Form Configuration */}
+          <Card>
+            <h3 className="text-xl font-semibold text-mint-900 mb-4">Form Configuration</h3>
 
             <div className="space-y-4">
               <div>
@@ -67,12 +210,6 @@ export default function Embed() {
               </div>
 
               <Input
-                label="Heading"
-                value={config.heading}
-                onChange={(e) => setConfig({ ...config, heading: e.target.value })}
-              />
-
-              <Input
                 label="Button Text"
                 value={config.buttonText}
                 onChange={(e) => setConfig({ ...config, buttonText: e.target.value })}
@@ -83,25 +220,6 @@ export default function Embed() {
                 value={config.successMessage}
                 onChange={(e) => setConfig({ ...config, successMessage: e.target.value })}
               />
-
-              <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
-                  Primary Color
-                </label>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="color"
-                    value={config.primaryColor}
-                    onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
-                    className="w-16 h-12 rounded-xl cursor-pointer border-2 border-mint-600/20"
-                  />
-                  <Input
-                    value={config.primaryColor}
-                    onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -115,10 +233,109 @@ export default function Embed() {
             </div>
           </Card>
 
+          {/* Custom Fields */}
+          <Card>
+            <h3 className="text-xl font-semibold text-mint-900 mb-4">Custom Fields</h3>
+            
+            {/* Quick Select Presets */}
+            <div className="mb-6">
+              <p className="text-sm font-medium text-mint-900 mb-3">Quick Add</p>
+              <div className="grid grid-cols-2 gap-2">
+                {presetFields.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => handleTogglePresetField(preset.name)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      isFieldActive(preset.name)
+                        ? 'bg-mint-600 text-white shadow-mint'
+                        : 'bg-mint-50 text-mint-900 hover:bg-mint-100 border border-mint-600/20'
+                    }`}
+                  >
+                    {isFieldActive(preset.name) && <Check className="w-3 h-3 inline mr-1" />}
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Field Input */}
+            <div className="mb-4">
+              {!showCustomFieldInput ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowCustomFieldInput(true)}
+                  className="w-full"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Custom Field
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newFieldName}
+                    onChange={(e) => setNewFieldName(e.target.value)}
+                    placeholder="Field name (e.g., Industry)"
+                    className="flex-1 px-3 py-2 bg-mint-50 border-2 border-mint-600/20 rounded-lg text-sm text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomField()}
+                  />
+                  <Button size="sm" onClick={handleAddCustomField}>
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setShowCustomFieldInput(false);
+                      setNewFieldName('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Active Fields List */}
+            {customFields.length > 0 && (
+              <div className="space-y-2 pt-4 border-t border-mint-600/10">
+                <p className="text-sm font-medium text-mint-900 mb-2">Active Fields ({customFields.length})</p>
+                {customFields.map((field) => (
+                  <div
+                    key={field.id}
+                    className="flex items-center justify-between p-3 bg-mint-50 rounded-xl"
+                  >
+                    <div>
+                      <p className="font-medium text-mint-900 text-sm">{field.name}</p>
+                      <p className="text-xs text-mint-900/70">
+                        {field.type} • {field.required ? 'Required' : 'Optional'}
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleDeleteField(field.id)}
+                      className="text-red-500 border-red-500"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          <Button onClick={handleSave} className="w-full">
+            <Save className="w-4 h-4" />
+            Save Configuration
+          </Button>
+
+          {/* Embed Code */}
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-mint-900">Embed Code</h3>
-              <Button onClick={handleCopy} variant="secondary">
+              <Button onClick={handleCopy} variant="secondary" size="sm">
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied!' : 'Copy'}
               </Button>
@@ -131,8 +348,8 @@ export default function Embed() {
           </Card>
         </div>
 
-        <div>
-          <Card className="sticky top-6">
+        <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+          <Card>
             <h3 className="text-xl font-semibold text-mint-900 mb-4">Live Preview</h3>
             <motion.div
               key={activeTab}
@@ -141,19 +358,41 @@ export default function Embed() {
               className="bg-white border-2 border-mint-600/20 rounded-2xl p-8"
             >
               <div className="max-w-md mx-auto">
-                <h3 className="text-2xl font-bold text-mint-900 mb-4 text-center">
+                {config.showLogo && (
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-mint-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                      W
+                    </div>
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold text-mint-900 mb-3 text-center">
                   {config.heading}
                 </h3>
                 <p className="text-mint-900/70 text-center mb-6">
-                  Be the first to know when we launch. Join our exclusive waitlist!
+                  {config.description}
                 </p>
                 <div className="space-y-3">
                   <input
-                    type="email"
-                    placeholder="Enter your email"
+                    type="text"
+                    placeholder="Name"
                     className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
                     style={{ borderColor: `${config.primaryColor}33` }}
                   />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                    style={{ borderColor: `${config.primaryColor}33` }}
+                  />
+                  {customFields.map((field) => (
+                    <input
+                      key={field.id}
+                      type="text"
+                      placeholder={field.name}
+                      className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                      style={{ borderColor: `${config.primaryColor}33` }}
+                    />
+                  ))}
                   <button
                     className="w-full px-6 py-3 rounded-xl font-medium text-white shadow-mint"
                     style={{ backgroundColor: config.primaryColor }}
@@ -171,8 +410,7 @@ export default function Embed() {
 
             <div className="mt-4 p-4 bg-mint-50 rounded-xl">
               <p className="text-sm text-mint-900/70">
-                <strong>Tip:</strong> Customize the colors and text to match your brand, then copy the
-                embed code and paste it into your website.
+                <strong>Tip:</strong> All changes update in real-time. Customize everything to match your brand, then copy the embed code.
               </p>
             </div>
           </Card>

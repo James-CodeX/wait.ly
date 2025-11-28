@@ -5,6 +5,7 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   glass?: boolean;
+  onClick?: () => void;
 }
 
 export default function Card({
@@ -12,6 +13,7 @@ export default function Card({
   className = '',
   hover = false,
   glass = false,
+  onClick,
 }: CardProps) {
   const Component = hover ? motion.div : 'div';
   const motionProps = hover
@@ -24,6 +26,7 @@ export default function Card({
   return (
     <Component
       className={`${glass ? 'glass-mint' : 'bg-mint-50'} rounded-2xl shadow-mint p-6 ${className}`}
+      onClick={onClick}
       {...motionProps}
     >
       {children}
