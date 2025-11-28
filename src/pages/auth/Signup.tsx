@@ -23,7 +23,7 @@ export default function Signup() {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/projects');
     }
   }, [user, navigate]);
 
@@ -58,7 +58,7 @@ export default function Signup() {
     }
 
     showToast('Account created successfully!', 'success');
-    navigate('/dashboard');
+    navigate('/projects');
   };
 
   return (

@@ -25,6 +25,15 @@ function App() {
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/signup" element={<Signup />} />
             <Route path="/public/:waitlistId" element={<PublicWaitlist />} />
+            
+            <Route
+              path="/projects"
+              element={
+                <ProtectedRoute>
+                  <Projects />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               element={
@@ -33,7 +42,6 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="/projects" element={<Projects />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/waitlist" element={<Waitlist />} />
               <Route path="/embed" element={<Embed />} />

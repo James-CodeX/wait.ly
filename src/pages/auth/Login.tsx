@@ -21,7 +21,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/projects');
     }
   }, [user, navigate]);
 
@@ -48,7 +48,7 @@ export default function Login() {
     }
 
     showToast('Successfully logged in!', 'success');
-    navigate('/dashboard');
+    navigate('/projects');
   };
 
   return (
