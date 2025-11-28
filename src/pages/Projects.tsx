@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Plus, Users, TrendingUp, Calendar } from 'lucide-react';
+import { Plus, Users, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
