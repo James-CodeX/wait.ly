@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Mail, Target } from 'lucide-react';
 import {
@@ -17,11 +19,72 @@ import {
 } from 'recharts';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockAnalytics } from '../utils/mockApi';
+import { analyticsService, AnalyticsStats, SignupDataPoint, SourceData, DailySignup } from '../services/analytics';
 
 const COLORS = ['#059669', '#10B981', '#34D399', '#6EE7B7'];
 
 export default function Analytics() {
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('project');
+  const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'all'>('week');
+  const [loading, setLoading] = useState(true);
+  
+  const [stats, setStats] = useState<AnalyticsStats>({
+    totalSignups: 0,
+    thisWeek: 0,
+    conversionRate: 0,
+    referralRate: 0,
+  });
+  const [signupsOverTime, setSignupsOverTime] = useState<SignupDataPoint[]>([]);
+  const [dailySignups, setDailySignups] = useState<DailySignup[]>([]);
+  const [trafficSources, setTrafficSources] = useState<SourceData[]>([]);
+
+  useEffect(() => {
+    if (projectId) {
+      loadAnalytics();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, timeFilter]);
+
+  const loadAnalytics = async () => {
+    if (!projectId) return;
+    
+    setLoading(true);
+    try {
+      const [statsData, signupsData, dailyData, sourcesData] = await Promise.all([
+        analyticsService.getStats(projectId, timeFilter),
+        analyticsService.getSignupsOverTime(projectId, timeFilter),
+        analyticsService.getDailySignups(projectId, timeFilter === 'week' ? 7 : 30),
+        analyticsService.getTrafficSources(projectId),
+      ]);
+
+      setStats(statsData);
+      setSignupsOverTime(signupsData);
+      setDailySignups(dailyData);
+      setTrafficSources(sourcesData);
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-mint-900/70">No project selected</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-mint-900/70">Loading analytics...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -30,9 +93,24 @@ export default function Analytics() {
           <p className="text-mint-900/70">Track your waitlist performance</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary">Last 7 Days</Button>
-          <Button variant="secondary">Last 30 Days</Button>
-          <Button variant="secondary">All Time</Button>
+          <Button 
+            variant={timeFilter === 'week' ? 'primary' : 'secondary'}
+            onClick={() => setTimeFilter('week')}
+          >
+            Last 7 Days
+          </Button>
+          <Button 
+            variant={timeFilter === 'month' ? 'primary' : 'secondary'}
+            onClick={() => setTimeFilter('month')}
+          >
+            Last 30 Days
+          </Button>
+          <Button 
+            variant={timeFilter === 'all' ? 'primary' : 'secondary'}
+            onClick={() => setTimeFilter('all')}
+          >
+            All Time
+          </Button>
         </div>
       </div>
 
@@ -41,25 +119,25 @@ export default function Analytics() {
           {
             icon: Users,
             label: 'Total Signups',
-            value: mockAnalytics.totalSignups,
+            value: stats.totalSignups,
             change: '+12.5%',
           },
           {
             icon: TrendingUp,
             label: 'This Week',
-            value: mockAnalytics.thisWeek,
+            value: stats.thisWeek,
             change: '+8.2%',
           },
           {
             icon: Target,
             label: 'Conversion Rate',
-            value: `${mockAnalytics.conversionRate}%`,
+            value: `${stats.conversionRate.toFixed(1)}%`,
             change: '+2.1%',
           },
           {
             icon: Mail,
             label: 'Referral Rate',
-            value: `${mockAnalytics.referralRate}%`,
+            value: `${stats.referralRate.toFixed(1)}%`,
             change: '+5.3%',
           },
         ].map((stat, index) => (
@@ -92,7 +170,7 @@ export default function Analytics() {
           <Card>
             <h3 className="text-xl font-semibold text-mint-900 mb-6">Signups Over Time</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={mockAnalytics.signupsOverTime}>
+              <AreaChart data={signupsOverTime}>
                 <defs>
                   <linearGradient id="colorSignups" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
@@ -131,7 +209,7 @@ export default function Analytics() {
           <Card>
             <h3 className="text-xl font-semibold text-mint-900 mb-6">Daily Signups</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={mockAnalytics.dailySignups}>
+              <BarChart data={dailySignups}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 78, 59, 0.1)" />
                 <XAxis dataKey="day" stroke="#064E3B" />
                 <YAxis stroke="#064E3B" />
@@ -161,7 +239,7 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={mockAnalytics.trafficSources}
+                  data={trafficSources}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -170,7 +248,7 @@ export default function Analytics() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {mockAnalytics.trafficSources.map((entry, index) => (
+                  {trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
