@@ -6,7 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
-import { mockApi, Project } from '../utils/mockApi';
+import { projectsService, Project } from '../services/projects';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -19,20 +19,27 @@ export default function Projects() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const loadProjects = async () => {
-      setLoading(true);
-      const data = await mockApi.getProjects();
-      setProjects(data);
-      setLoading(false);
-    };
     loadProjects();
   }, []);
 
+  const loadProjects = async () => {
+    setLoading(true);
+    try {
+      const data = await projectsService.getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      showToast('Failed to load projects', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSelectProject = async (projectId: string) => {
     try {
-      mockApi.selectProject(projectId);
-      // Pass project ID to trigger reload
-      navigate('/dashboard', { state: { projectId, timestamp: Date.now() } });
+      // Store selected project in localStorage
+      localStorage.setItem('selectedProjectId', projectId);
+      navigate(`/dashboard?project=${projectId}`);
     } catch (error) {
       showToast('Failed to select project', 'error');
     }
@@ -48,14 +55,17 @@ export default function Projects() {
 
     setCreating(true);
     try {
-      const newProject = await mockApi.createProject(formData.name, formData.description);
+      const newProject = await projectsService.createProject(formData.name, formData.description);
       setProjects([newProject, ...projects]);
       setCreateModal(false);
       setFormData({ name: '', description: '' });
       showToast('Project created successfully!', 'success');
-      mockApi.selectProject(newProject.id);
-      navigate('/dashboard');
+      
+      // Auto-select the new project and navigate to dashboard
+      localStorage.setItem('selectedProjectId', newProject.id);
+      navigate(`/dashboard?project=${newProject.id}`);
     } catch (error) {
+      console.error('Failed to create project:', error);
       showToast('Failed to create project', 'error');
     } finally {
       setCreating(false);
@@ -113,7 +123,7 @@ export default function Projects() {
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <span className="text-xs text-mint-900/50">
-                    {new Date(project.createdAt).toLocaleDateString()}
+                    {new Date(project.created_at).toLocaleDateString()}
                   </span>
                 </div>
 
@@ -124,7 +134,7 @@ export default function Projects() {
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-mint-600" />
                     <span className="text-sm font-medium text-mint-900">
-                      {project.totalSignups} signups
+                      {project.total_signups} signups
                     </span>
                   </div>
                 </div>
