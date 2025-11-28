@@ -6,7 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import { embedService, EmbedConfiguration, CustomField } from '../services/embed';
+import { embedService, CustomField } from '../services/embed';
 
 export default function Embed() {
   const { showToast } = useToast();

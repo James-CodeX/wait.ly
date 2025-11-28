@@ -1,27 +1,177 @@
 import { motion } from 'framer-motion';
-import { Plus, Mail, Eye, Send } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, Mail, Eye, Send, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
-import { mockEmailCampaigns, mockEmailTemplates } from '../utils/mockApi';
+import { emailService, EmailCampaign, EmailTemplate } from '../services/email';
 import { useToast } from '../components/ui/Toast';
 
 export default function Emails() {
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditorModal, setShowEditorModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(mockEmailTemplates[0]);
+  const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    subject: '',
+    body: '',
+    templateId: '',
+    recipientFilter: 'all',
+  });
+  const [creating, setCreating] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleCreateCampaign = () => {
-    setShowCreateModal(false);
-    showToast('Campaign created successfully!', 'success');
+  const projectId = searchParams.get('project') || localStorage.getItem('selectedProjectId') || '';
+
+  useEffect(() => {
+    if (projectId) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [campaignsData, templatesData] = await Promise.all([
+        emailService.getCampaigns(projectId),
+        emailService.getTemplates(projectId),
+      ]);
+      setCampaigns(campaignsData);
+      setTemplates(templatesData);
+    } catch (error) {
+      console.error('Failed to load email data:', error);
+      showToast('Failed to load email data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateCampaign = async () => {
+    if (!formData.name.trim() || !formData.subject.trim()) {
+      showToast('Please fill in all required fields', 'error');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      // Get template body if template selected
+      let body = formData.body;
+      if (formData.templateId) {
+        const template = templates.find(t => t.id === formData.templateId);
+        if (template) {
+          body = template.body;
+        }
+      }
+
+      const newCampaign = await emailService.createCampaign(projectId, {
+        name: formData.name,
+        subject: formData.subject,
+        body: body || 'Email content here...',
+        template_id: formData.templateId || undefined,
+        recipient_filter: { type: formData.recipientFilter },
+      });
+
+      setCampaigns([newCampaign, ...campaigns]);
+      setShowCreateModal(false);
+      setFormData({ name: '', subject: '', body: '', templateId: '', recipientFilter: 'all' });
+      showToast('Campaign created successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to create campaign:', error);
+      showToast('Failed to create campaign', 'error');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleSendCampaign = async (campaignId: string) => {
+    setSending(true);
+    try {
+      const updatedCampaign = await emailService.sendCampaign(campaignId);
+      setCampaigns(campaigns.map(c => c.id === campaignId ? updatedCampaign : c));
+      showToast('Campaign sent successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to send campaign:', error);
+      showToast('Failed to send campaign', 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    try {
+      await emailService.deleteCampaign(campaignId);
+      setCampaigns(campaigns.filter(c => c.id !== campaignId));
+      showToast('Campaign deleted successfully', 'success');
+    } catch (error) {
+      console.error('Failed to delete campaign:', error);
+      showToast('Failed to delete campaign', 'error');
+    }
   };
 
   const handleSendTest = () => {
     showToast('Test email sent!', 'success');
   };
+
+  const handleOpenEditor = (campaign: EmailCampaign) => {
+    setSelectedCampaign(campaign);
+    setShowEditorModal(true);
+  };
+
+  const handleSaveEditor = async () => {
+    if (!selectedCampaign) return;
+
+    try {
+      const updated = await emailService.updateCampaign(selectedCampaign.id, {
+        subject: selectedCampaign.subject,
+        body: selectedCampaign.body,
+      });
+      setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
+      setShowEditorModal(false);
+      showToast('Campaign updated successfully', 'success');
+    } catch (error) {
+      console.error('Failed to update campaign:', error);
+      showToast('Failed to update campaign', 'error');
+    }
+  };
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 mb-6">
+            Please select a project from the Projects page to manage email campaigns.
+          </p>
+          <Button onClick={() => window.location.href = '/projects'}>
+            Go to Projects
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-64 bg-mint-50 rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -37,99 +187,126 @@ export default function Emails() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockEmailCampaigns.map((campaign, index) => (
-          <motion.div
-            key={campaign.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card hover className="h-full">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-white" />
+        {campaigns.length === 0 ? (
+          <div className="col-span-full text-center py-12">
+            <Mail className="w-16 h-16 text-mint-600 mx-auto mb-4" />
+            <p className="text-mint-900/70">No email campaigns yet. Create your first one!</p>
+          </div>
+        ) : (
+          campaigns.map((campaign, index) => (
+            <motion.div
+              key={campaign.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card hover className="h-full">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-white" />
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      campaign.status === 'sent'
+                        ? 'bg-mint-600 text-white'
+                        : 'bg-mint-50 text-mint-900'
+                    }`}
+                  >
+                    {campaign.status}
+                  </span>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    campaign.status === 'sent'
-                      ? 'bg-mint-600 text-white'
-                      : 'bg-mint-50 text-mint-900'
-                  }`}
-                >
-                  {campaign.status}
-                </span>
-              </div>
 
-              <h3 className="text-xl font-semibold text-mint-900 mb-2">{campaign.name}</h3>
-              <p className="text-mint-900/70 mb-4">{campaign.subject}</p>
+                <h3 className="text-xl font-semibold text-mint-900 mb-2">{campaign.name}</h3>
+                <p className="text-mint-900/70 mb-4">{campaign.subject}</p>
 
-              {campaign.status === 'sent' && (
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-mint-900/70">Sent</p>
-                    <p className="text-lg font-semibold text-mint-900">{campaign.sent}</p>
+                {campaign.status === 'sent' && (
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-mint-900/70">Sent</p>
+                      <p className="text-lg font-semibold text-mint-900">{campaign.total_sent}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-mint-900/70">Opened</p>
+                      <p className="text-lg font-semibold text-mint-900">{campaign.total_opened}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-mint-900/70">Clicked</p>
+                      <p className="text-lg font-semibold text-mint-900">{campaign.total_clicked}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-mint-900/70">Opened</p>
-                    <p className="text-lg font-semibold text-mint-900">{campaign.opened}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-mint-900/70">Clicked</p>
-                    <p className="text-lg font-semibold text-mint-900">{campaign.clicked}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Button
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={() => setShowEditorModal(true)}
-                >
-                  <Eye className="w-4 h-4" />
-                  {campaign.status === 'sent' ? 'View' : 'Edit'}
-                </Button>
-                {campaign.status === 'draft' && (
-                  <Button className="flex-1">
-                    <Send className="w-4 h-4" />
-                    Send
-                  </Button>
                 )}
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={() => handleOpenEditor(campaign)}
+                  >
+                    <Eye className="w-4 h-4" />
+                    {campaign.status === 'sent' ? 'View' : 'Edit'}
+                  </Button>
+                  {campaign.status === 'draft' && (
+                    <Button 
+                      className="flex-1"
+                      onClick={() => handleSendCampaign(campaign.id)}
+                      loading={sending}
+                      disabled={sending}
+                    >
+                      <Send className="w-4 h-4" />
+                      Send
+                    </Button>
+                  )}
+                  {campaign.status === 'draft' && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleDeleteCampaign(campaign.id)}
+                      className="text-red-500 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+          ))
+        )}
       </div>
 
       <div>
         <h2 className="text-2xl font-bold text-mint-900 mb-4">Email Templates</h2>
         <div className="grid md:grid-cols-2 gap-6">
-          {mockEmailTemplates.map((template, index) => (
-            <motion.div
-              key={template.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-            >
-              <Card hover>
-                <h3 className="text-xl font-semibold text-mint-900 mb-2">{template.name}</h3>
-                <p className="text-mint-900/70 mb-4">{template.subject}</p>
-                <div className="bg-mint-50 p-4 rounded-xl mb-4">
-                  <pre className="text-sm text-mint-900 whitespace-pre-wrap">{template.body}</pre>
-                </div>
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => {
-                    setSelectedTemplate(template);
-                    setShowEditorModal(true);
-                  }}
-                >
-                  Use Template
-                </Button>
-              </Card>
-            </motion.div>
-          ))}
+          {templates.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-mint-900/70">No templates yet</p>
+            </div>
+          ) : (
+            templates.map((template, index) => (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+              >
+                <Card hover>
+                  <h3 className="text-xl font-semibold text-mint-900 mb-2">{template.name}</h3>
+                  <p className="text-mint-900/70 mb-4">{template.subject}</p>
+                  <div className="bg-mint-50 p-4 rounded-xl mb-4">
+                    <pre className="text-sm text-mint-900 whitespace-pre-wrap line-clamp-4">{template.body}</pre>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => {
+                      setFormData({ ...formData, templateId: template.id, subject: template.subject, body: template.body });
+                      setShowCreateModal(true);
+                    }}
+                  >
+                    Use Template
+                  </Button>
+                </Card>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
 
@@ -139,13 +316,40 @@ export default function Emails() {
         title="Create New Campaign"
       >
         <div className="space-y-4">
-          <Input label="Campaign Name" placeholder="e.g., Welcome Series" />
-          <Input label="Subject Line" placeholder="Welcome to our waitlist!" />
+          <Input 
+            label="Campaign Name" 
+            placeholder="e.g., Welcome Series"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <Input 
+            label="Subject Line" 
+            placeholder="Welcome to our waitlist!"
+            value={formData.subject}
+            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+          />
 
           <div>
             <label className="block text-sm font-medium text-mint-900 mb-2">Template</label>
-            <select className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600">
-              {mockEmailTemplates.map((template) => (
+            <select 
+              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600"
+              value={formData.templateId}
+              onChange={(e) => {
+                const template = templates.find(t => t.id === e.target.value);
+                if (template) {
+                  setFormData({ 
+                    ...formData, 
+                    templateId: e.target.value,
+                    subject: template.subject,
+                    body: template.body
+                  });
+                } else {
+                  setFormData({ ...formData, templateId: '' });
+                }
+              }}
+            >
+              <option value="">None - Start from scratch</option>
+              {templates.map((template) => (
                 <option key={template.id} value={template.id}>
                   {template.name}
                 </option>
@@ -155,10 +359,14 @@ export default function Emails() {
 
           <div>
             <label className="block text-sm font-medium text-mint-900 mb-2">Recipients</label>
-            <select className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600">
-              <option>All waitlist members</option>
-              <option>New signups this week</option>
-              <option>Top 100 positions</option>
+            <select 
+              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600"
+              value={formData.recipientFilter}
+              onChange={(e) => setFormData({ ...formData, recipientFilter: e.target.value })}
+            >
+              <option value="all">All waitlist members</option>
+              <option value="week">New signups this week</option>
+              <option value="top100">Top 100 positions</option>
             </select>
           </div>
 
@@ -166,7 +374,7 @@ export default function Emails() {
             <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={handleCreateCampaign} className="flex-1">
+            <Button onClick={handleCreateCampaign} loading={creating} disabled={creating} className="flex-1">
               Create Campaign
             </Button>
           </div>
@@ -179,39 +387,57 @@ export default function Emails() {
         title="Email Editor"
         size="lg"
       >
-        <div className="space-y-4">
-          <Input label="Subject" value={selectedTemplate.subject} />
-
-          <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">Message</label>
-            <textarea
-              rows={10}
-              value={selectedTemplate.body}
-              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600 resize-none"
+        {selectedCampaign && (
+          <div className="space-y-4">
+            <Input 
+              label="Subject" 
+              value={selectedCampaign.subject}
+              onChange={(e) => setSelectedCampaign({ ...selectedCampaign, subject: e.target.value })}
+              disabled={selectedCampaign.status === 'sent'}
             />
-          </div>
 
-          <div className="bg-mint-50 p-4 rounded-xl">
-            <p className="text-sm text-mint-900/70">
-              <strong>Available variables:</strong> {'{'}
-              {'{'}name{'}'}
-              {'}'}, {'{'}
-              {'{'}position{'}'}
-              {'}'}, {'{'}
-              {'{'}waitlist_name{'}'}
-              {'}'}
-            </p>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-mint-900 mb-2">Message</label>
+              <textarea
+                rows={10}
+                value={selectedCampaign.body}
+                onChange={(e) => setSelectedCampaign({ ...selectedCampaign, body: e.target.value })}
+                disabled={selectedCampaign.status === 'sent'}
+                className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600 resize-none disabled:opacity-50"
+              />
+            </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button variant="secondary" onClick={handleSendTest} className="flex-1">
-              Send Test
-            </Button>
-            <Button onClick={() => setShowEditorModal(false)} className="flex-1">
-              Save & Close
-            </Button>
+            <div className="bg-mint-50 p-4 rounded-xl">
+              <p className="text-sm text-mint-900/70">
+                <strong>Available variables:</strong> {'{'}
+                {'{'}name{'}'}
+                {'}'}, {'{'}
+                {'{'}position{'}'}
+                {'}'}, {'{'}
+                {'{'}waitlist_name{'}'}
+                {'}'}
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              {selectedCampaign.status !== 'sent' && (
+                <>
+                  <Button variant="secondary" onClick={handleSendTest} className="flex-1">
+                    Send Test
+                  </Button>
+                  <Button onClick={handleSaveEditor} className="flex-1">
+                    Save & Close
+                  </Button>
+                </>
+              )}
+              {selectedCampaign.status === 'sent' && (
+                <Button onClick={() => setShowEditorModal(false)} className="w-full">
+                  Close
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </Modal>
     </div>
   );
