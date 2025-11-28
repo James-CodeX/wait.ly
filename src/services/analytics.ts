@@ -173,17 +173,25 @@ export const analyticsService = {
   },
 
   async getTrafficSources(projectId: string): Promise<SourceData[]> {
-    const { data: entries } = await supabase
-      .from('waitlist_entries')
+    const { data: events } = await supabase
+      .from('analytics_events')
       .select('source')
-      .eq('project_id', projectId);
+      .eq('project_id', projectId)
+      .eq('event_type', 'signup')
+      .not('source', 'is', null);
 
     const sourceMap = new Map<string, number>();
 
-    entries?.forEach((entry: { source?: string | null }) => {
-      const source = entry.source || 'Direct';
+    // Count by source
+    events?.forEach((event: { source?: string | null }) => {
+      const source = event.source || 'Direct';
       sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
     });
+
+    // If no analytics events, return default/empty
+    if (sourceMap.size === 0) {
+      return [{ name: 'Direct', value: 1 }];
+    }
 
     return Array.from(sourceMap.entries())
       .map(([name, value]) => ({ name, value }))
