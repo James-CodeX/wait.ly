@@ -1,61 +1,145 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Download, X, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import { mockApi, WaitlistEntry } from '../utils/mockApi';
+import { waitlistService, WaitlistEntry } from '../services/waitlist';
 import { useToast } from '../components/ui/Toast';
 import { exportToExcel } from '../utils/exportToExcel';
 
 export default function Waitlist() {
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; entry: WaitlistEntry | null }>({
     isOpen: false,
     entry: null,
   });
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    loadEntries();
-  }, []);
+  const projectId = searchParams.get('project') || localStorage.getItem('selectedProjectId') || '';
+  const LIMIT = 10;
 
-  const loadEntries = async () => {
-    setLoading(true);
-    const data = await mockApi.getEntries(searchQuery);
-    setEntries(data);
-    setLoading(false);
-  };
+  useEffect(() => {
+    if (projectId) {
+      loadEntries(true);
+    } else {
+      setLoading(false);
+    }
+  }, [projectId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadEntries();
+      if (projectId) {
+        loadEntries(true);
+      }
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  const loadEntries = async (reset: boolean = false) => {
+    if (!projectId) return;
+
+    if (reset) {
+      setLoading(true);
+      setOffset(0);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      const newOffset = reset ? 0 : offset;
+      const { entries: newEntries, total: totalCount } = await waitlistService.getEntries(
+        projectId,
+        LIMIT,
+        newOffset,
+        searchQuery
+      );
+
+      if (reset) {
+        setEntries(newEntries);
+      } else {
+        setEntries([...entries, ...newEntries]);
+      }
+      
+      setTotal(totalCount);
+      if (!reset) {
+        setOffset(newOffset + LIMIT);
+      }
+    } catch (error) {
+      console.error('Failed to load entries:', error);
+      showToast('Failed to load waitlist entries', 'error');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    setOffset(offset + LIMIT);
+    loadEntries(false);
+  };
 
   const handleDelete = async () => {
     if (!deleteModal.entry) return;
     
     setDeleting(true);
-    await mockApi.deleteEntry(deleteModal.entry.id);
-    setEntries(entries.filter(e => e.id !== deleteModal.entry!.id));
-    setDeleting(false);
-    setDeleteModal({ isOpen: false, entry: null });
-    showToast('Entry deleted successfully', 'success');
+    try {
+      await waitlistService.deleteEntry(deleteModal.entry.id);
+      setEntries(entries.filter(e => e.id !== deleteModal.entry!.id));
+      setTotal(total - 1);
+      setDeleteModal({ isOpen: false, entry: null });
+      showToast('Entry deleted successfully', 'success');
+    } catch (error) {
+      console.error('Failed to delete entry:', error);
+      showToast('Failed to delete entry', 'error');
+    } finally {
+      setDeleting(false);
+    }
   };
 
-  const handleExport = () => {
-    if (entries.length === 0) {
-      showToast('No entries to export', 'info');
+  const handleExport = async () => {
+    if (!projectId) {
+      showToast('No project selected', 'error');
       return;
     }
-    exportToExcel(entries, `waitlist-export-${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('Waitlist exported successfully!', 'success');
+
+    try {
+      const allEntries = await waitlistService.getAllEntries(projectId);
+      if (allEntries.length === 0) {
+        showToast('No entries to export', 'info');
+        return;
+      }
+      exportToExcel(allEntries, `waitlist-export-${new Date().toISOString().split('T')[0]}.xlsx`);
+      showToast('Waitlist exported successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to export:', error);
+      showToast('Failed to export waitlist', 'error');
+    }
   };
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 mb-6">
+            Please select a project from the Projects page to view the waitlist.
+          </p>
+          <Button onClick={() => window.location.href = '/projects'}>
+            Go to Projects
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -143,7 +227,7 @@ export default function Waitlist() {
                     </td>
                     <td className="py-4 px-4 text-mint-900/70">{entry.email}</td>
                     <td className="py-4 px-4 text-mint-900/70">
-                      {new Date(entry.createdAt).toLocaleDateString()}
+                      {new Date(entry.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-end gap-2">
@@ -164,8 +248,21 @@ export default function Waitlist() {
           </table>
         </div>
 
-        <div className="mt-6 flex items-center justify-between text-sm text-mint-900/70">
-          <p>Showing {entries.length} entries</p>
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm text-mint-900/70">
+            Showing {entries.length} of {total} entries
+          </p>
+          
+          {entries.length < total && (
+            <Button
+              variant="secondary"
+              onClick={handleLoadMore}
+              loading={loadingMore}
+              disabled={loadingMore}
+            >
+              Load More
+            </Button>
+          )}
         </div>
       </Card>
 
