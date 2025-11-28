@@ -1,43 +1,70 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Download, MoreVertical, X } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Download, X, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { mockWaitlistEntries } from '../utils/mockApi';
+import Modal from '../components/ui/Modal';
+import { mockApi, WaitlistEntry } from '../utils/mockApi';
 import { useToast } from '../components/ui/Toast';
+import { exportToExcel } from '../utils/exportToExcel';
 
 export default function Waitlist() {
   const { showToast } = useToast();
+  const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
-  const [selectedEntry, setSelectedEntry] = useState<typeof mockWaitlistEntries[0] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; entry: WaitlistEntry | null }>({
+    isOpen: false,
+    entry: null,
+  });
+  const [deleting, setDeleting] = useState(false);
 
-  const filteredEntries = mockWaitlistEntries.filter(
-    (entry) =>
-      entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    loadEntries();
+  }, []);
 
-  const handleSelectAll = () => {
-    if (selectedEntries.length === filteredEntries.length) {
-      setSelectedEntries([]);
-    } else {
-      setSelectedEntries(filteredEntries.map((e) => e.id));
-    }
+  const loadEntries = async () => {
+    setLoading(true);
+    const data = await mockApi.getEntries(searchQuery);
+    setEntries(data);
+    setLoading(false);
   };
 
-  const handleSelectEntry = (id: string) => {
-    if (selectedEntries.includes(id)) {
-      setSelectedEntries(selectedEntries.filter((e) => e !== id));
-    } else {
-      setSelectedEntries([...selectedEntries, id]);
-    }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadEntries();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleDelete = async () => {
+    if (!deleteModal.entry) return;
+    
+    setDeleting(true);
+    await mockApi.deleteEntry(deleteModal.entry.id);
+    setEntries(entries.filter(e => e.id !== deleteModal.entry!.id));
+    setDeleting(false);
+    setDeleteModal({ isOpen: false, entry: null });
+    showToast('Entry deleted successfully', 'success');
   };
 
   const handleExport = () => {
-    showToast('Exporting waitlist data...', 'success');
+    if (entries.length === 0) {
+      showToast('No entries to export', 'info');
+      return;
+    }
+    exportToExcel(entries, `waitlist-export-${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Waitlist exported successfully!', 'success');
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+        <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -46,207 +73,129 @@ export default function Waitlist() {
           <h1 className="text-3xl font-bold text-mint-900 mb-2">Waitlist</h1>
           <p className="text-mint-900/70">Manage your waitlist entries</p>
         </div>
-        <Button onClick={handleExport}>
+        <Button onClick={handleExport} variant="secondary">
           <Download className="w-4 h-4" />
           Export
         </Button>
       </div>
 
       <Card>
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <Input
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mint-600" />
+            <input
+              type="text"
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              icon={<Search className="w-5 h-5" />}
+              className="w-full pl-10 pr-10 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 focus:ring-4 focus:ring-mint-600/10 transition-all"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-mint-600 hover:bg-mint-50 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
-          <Button variant="secondary">
-            <Filter className="w-4 h-4" />
-            Filter
-          </Button>
         </div>
-
-        {selectedEntries.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-4 bg-mint-600 text-white rounded-xl flex items-center justify-between"
-          >
-            <span className="font-medium">
-              {selectedEntries.length} selected
-            </span>
-            <div className="flex gap-2">
-              <Button variant="secondary" className="text-mint-600">
-                Send Email
-              </Button>
-              <Button variant="secondary" className="text-mint-600">
-                Export Selected
-              </Button>
-            </div>
-          </motion.div>
-        )}
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-mint-600/10">
-                <th className="text-left p-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedEntries.length === filteredEntries.length}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 text-mint-600 border-mint-600/20 rounded focus:ring-mint-600"
-                  />
-                </th>
-                <th className="text-left p-4 font-semibold text-mint-900">Name</th>
-                <th className="text-left p-4 font-semibold text-mint-900">Email</th>
-                <th className="text-left p-4 font-semibold text-mint-900">Position</th>
-                <th className="text-left p-4 font-semibold text-mint-900">Referrals</th>
-                <th className="text-left p-4 font-semibold text-mint-900">Signup Date</th>
-                <th className="text-left p-4 font-semibold text-mint-900">Actions</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Position</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Name</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Email</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Date</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-mint-900">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredEntries.map((entry, index) => (
-                <motion.tr
-                  key={entry.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border-b border-mint-600/10 hover:bg-mint-50 transition-colors cursor-pointer"
-                  onClick={() => setSelectedEntry(entry)}
-                >
-                  <td className="p-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedEntries.includes(entry.id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleSelectEntry(entry.id);
-                      }}
-                      className="w-4 h-4 text-mint-600 border-mint-600/20 rounded focus:ring-mint-600"
-                    />
+              {entries.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-12 text-mint-900/70">
+                    {searchQuery ? 'No entries found' : 'No entries yet'}
                   </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-mint-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {entry.name.charAt(0)}
+                </tr>
+              ) : (
+                entries.map((entry, index) => (
+                  <motion.tr
+                    key={entry.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="border-b border-mint-600/10 hover:bg-mint-50 transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-mint-600 text-white rounded-lg text-sm font-semibold">
+                        {entry.position}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-mint-600 rounded-full flex items-center justify-center text-white font-semibold">
+                          {entry.name.charAt(0)}
+                        </div>
+                        <span className="font-medium text-mint-900">{entry.name}</span>
                       </div>
-                      <span className="font-medium text-mint-900">{entry.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-mint-900/70">{entry.email}</td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-3 py-1 bg-mint-600 text-white text-sm font-medium rounded-full">
-                      #{entry.position}
-                    </span>
-                  </td>
-                  <td className="p-4 text-mint-900/70">{entry.referrals}</td>
-                  <td className="p-4 text-mint-900/70">{entry.signupDate}</td>
-                  <td className="p-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedEntry(entry);
-                      }}
-                      className="p-2 hover:bg-mint-100 rounded-lg transition-colors text-mint-600"
-                    >
-                      <MoreVertical className="w-5 h-5" />
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
+                    </td>
+                    <td className="py-4 px-4 text-mint-900/70">{entry.email}</td>
+                    <td className="py-4 px-4 text-mint-900/70">
+                      {new Date(entry.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setDeleteModal({ isOpen: true, entry })}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-mint-900/70">
-            Showing {filteredEntries.length} of {mockWaitlistEntries.length} entries
-          </p>
-          <div className="flex gap-2">
-            <Button variant="secondary">Previous</Button>
-            <Button variant="secondary">Next</Button>
-          </div>
+        <div className="mt-6 flex items-center justify-between text-sm text-mint-900/70">
+          <p>Showing {entries.length} entries</p>
         </div>
       </Card>
 
-      <AnimatePresence>
-        {selectedEntry && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedEntry(null)}
-              className="fixed inset-0 bg-mint-900/20 backdrop-blur-sm z-40"
-            />
-            <motion.div
-              initial={{ x: 400 }}
-              animate={{ x: 0 }}
-              exit={{ x: 400 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-mint-lg z-50 overflow-y-auto"
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, entry: null })}
+        title="Delete Entry"
+      >
+        <div className="space-y-6">
+          <p className="text-mint-900/70">
+            Are you sure you want to delete <strong>{deleteModal.entry?.name}</strong>? This cannot be undone.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModal({ isOpen: false, entry: null })}
+              disabled={deleting}
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-semibold text-mint-900">Entry Details</h3>
-                  <button
-                    onClick={() => setSelectedEntry(null)}
-                    className="p-2 hover:bg-mint-50 rounded-lg transition-colors text-mint-600"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-mint-600 rounded-full flex items-center justify-center text-white text-2xl font-semibold">
-                      {selectedEntry.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-semibold text-mint-900">{selectedEntry.name}</h4>
-                      <p className="text-mint-900/70">{selectedEntry.email}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card>
-                      <p className="text-sm text-mint-900/70 mb-1">Position</p>
-                      <p className="text-2xl font-bold text-mint-900">#{selectedEntry.position}</p>
-                    </Card>
-                    <Card>
-                      <p className="text-sm text-mint-900/70 mb-1">Referrals</p>
-                      <p className="text-2xl font-bold text-mint-900">{selectedEntry.referrals}</p>
-                    </Card>
-                  </div>
-
-                  <Card>
-                    <p className="text-sm text-mint-900/70 mb-2">Signup Date</p>
-                    <p className="font-medium text-mint-900">{selectedEntry.signupDate}</p>
-                  </Card>
-
-                  <Card>
-                    <p className="text-sm text-mint-900/70 mb-2">Status</p>
-                    <span className="inline-flex items-center px-3 py-1 bg-mint-600 text-white text-sm font-medium rounded-full">
-                      {selectedEntry.status}
-                    </span>
-                  </Card>
-
-                  <div className="space-y-3">
-                    <Button className="w-full">Send Email</Button>
-                    <Button variant="secondary" className="w-full">Move Position</Button>
-                    <Button variant="secondary" className="w-full text-red-500 border-red-500 hover:bg-red-50">
-                      Remove from Waitlist
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              loading={deleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { useToast } from '../../components/ui/Toast';
-import { fakeFetch } from '../../utils/mockApi';
+import { mockApi } from '../../utils/mockApi';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,11 +32,15 @@ export default function Login() {
     }
 
     setLoading(true);
-    await fakeFetch({ success: true }, 1000);
-    setLoading(false);
-
-    showToast('Successfully logged in!', 'success');
-    navigate('/dashboard');
+    try {
+      await mockApi.login(formData.email, formData.password);
+      showToast('Successfully logged in!', 'success');
+      navigate('/dashboard');
+    } catch (error) {
+      showToast('Invalid credentials', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,55 +1,146 @@
-export async function fakeFetch<T>(data: T, delay: number = 600): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(data), delay));
+// Mock API utilities for development
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export async function fakeFetch<T>(data: T, delayMs: number = 600): Promise<T> {
+  await delay(delayMs);
+  return data;
 }
 
-export const mockWaitlistEntries = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    email: 'sarah.j@example.com',
-    position: 1,
-    signupDate: '2024-03-15',
-    status: 'active',
-    referrals: 3,
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    email: 'mchen@example.com',
-    position: 2,
-    signupDate: '2024-03-15',
-    status: 'active',
-    referrals: 1,
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    email: 'emily.r@example.com',
-    position: 3,
-    signupDate: '2024-03-16',
-    status: 'active',
-    referrals: 5,
-  },
-  {
-    id: '4',
-    name: 'David Kim',
-    email: 'dkim@example.com',
-    position: 4,
-    signupDate: '2024-03-16',
-    status: 'active',
-    referrals: 0,
-  },
-  {
-    id: '5',
-    name: 'Jessica Taylor',
-    email: 'jtaylor@example.com',
-    position: 5,
-    signupDate: '2024-03-17',
-    status: 'active',
-    referrals: 2,
-  },
-];
+// Mock data types
+export interface WaitlistEntry {
+  id: string;
+  name: string;
+  email: string;
+  position: number;
+  createdAt: string;
+  status?: 'active' | 'approved' | 'rejected';
+}
 
+export interface Waitlist {
+  id: string;
+  name: string;
+  description: string;
+  totalSignups: number;
+  todaySignups: number;
+  weekSignups: number;
+  createdAt: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
+// Generate mock waitlist entries
+const generateMockEntries = (count: number): WaitlistEntry[] => {
+  const names = ['Alice Johnson', 'Bob Smith', 'Charlie Brown', 'Diana Prince', 'Ethan Hunt', 'Fiona Green', 'George Miller', 'Hannah Lee', 'Ian Wright', 'Julia Roberts'];
+  const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'company.com', 'startup.io'];
+  
+  return Array.from({ length: count }, (_, i) => ({
+    id: `entry-${i + 1}`,
+    name: names[i % names.length],
+    email: `${names[i % names.length].toLowerCase().replace(' ', '.')}${i}@${domains[i % domains.length]}`,
+    position: i + 1,
+    createdAt: new Date(Date.now() - (count - i) * 86400000).toISOString(),
+    status: 'active' as const,
+  }));
+};
+
+// Mock database
+let mockEntries = generateMockEntries(47);
+let mockUser: User = {
+  id: 'user-1',
+  email: 'demo@wait.ly',
+  name: 'Demo User',
+  createdAt: new Date().toISOString(),
+};
+
+let mockWaitlist: Waitlist = {
+  id: 'waitlist-1',
+  name: 'My Awesome Product',
+  description: 'Join the waitlist for early access',
+  totalSignups: 47,
+  todaySignups: 3,
+  weekSignups: 12,
+  createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+};
+
+// API functions
+export const mockApi = {
+  // Auth
+  login: async (email: string, password: string) => {
+    await delay(800);
+    if (email && password) {
+      return fakeFetch({ user: mockUser, success: true });
+    }
+    throw new Error('Invalid credentials');
+  },
+
+  signup: async (name: string, email: string, _password: string) => {
+    await delay(800);
+    mockUser = { ...mockUser, name, email };
+    return fakeFetch({ user: mockUser, success: true });
+  },
+
+  // Waitlist
+  getWaitlist: async () => {
+    return fakeFetch(mockWaitlist);
+  },
+
+  getEntries: async (search?: string) => {
+    await delay(400);
+    let entries = [...mockEntries];
+    if (search) {
+      entries = entries.filter(e => 
+        e.name.toLowerCase().includes(search.toLowerCase()) ||
+        e.email.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    return fakeFetch(entries);
+  },
+
+  addEntry: async (name: string, email: string) => {
+    await delay(600);
+    const newEntry: WaitlistEntry = {
+      id: `entry-${Date.now()}`,
+      name,
+      email,
+      position: mockEntries.length + 1,
+      createdAt: new Date().toISOString(),
+      status: 'active',
+    };
+    mockEntries.unshift(newEntry);
+    mockWaitlist.totalSignups++;
+    mockWaitlist.todaySignups++;
+    mockWaitlist.weekSignups++;
+    return fakeFetch(newEntry);
+  },
+
+  deleteEntry: async (id: string) => {
+    await delay(400);
+    mockEntries = mockEntries.filter(e => e.id !== id);
+    mockWaitlist.totalSignups--;
+    return fakeFetch({ success: true });
+  },
+
+  // Stats
+  getStats: async () => {
+    return fakeFetch({
+      totalSignups: mockWaitlist.totalSignups,
+      todaySignups: mockWaitlist.todaySignups,
+      weekSignups: mockWaitlist.weekSignups,
+    });
+  },
+
+  getRecentEntries: async (limit = 10) => {
+    await delay(300);
+    return fakeFetch(mockEntries.slice(0, limit));
+  },
+};
+
+// Mock analytics data
 export const mockAnalytics = {
   totalSignups: 1247,
   thisWeek: 156,
@@ -84,6 +175,7 @@ export const mockAnalytics = {
   ],
 };
 
+// Mock email campaigns
 export const mockEmailCampaigns = [
   {
     id: '1',
@@ -117,6 +209,7 @@ export const mockEmailCampaigns = [
   },
 ];
 
+// Mock email templates
 export const mockEmailTemplates = [
   {
     id: 'welcome',

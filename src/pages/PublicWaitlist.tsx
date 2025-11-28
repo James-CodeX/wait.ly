@@ -1,27 +1,45 @@
 import { motion } from 'framer-motion';
-import { Mail, Users, CheckCircle } from 'lucide-react';
+import { Mail, Users, CheckCircle, User } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
-import { fakeFetch } from '../utils/mockApi';
+import { mockApi } from '../utils/mockApi';
+import { useToast } from '../components/ui/Toast';
 
 export default function PublicWaitlist() {
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [position, setPosition] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    if (!name) {
+      setErrors(prev => ({ ...prev, name: 'Name is required' }));
+      return;
+    }
+    if (!email) {
+      setErrors(prev => ({ ...prev, email: 'Email is required' }));
+      return;
+    }
+
     setLoading(true);
-
-    await fakeFetch({ position: Math.floor(Math.random() * 1000) + 1 }, 1000);
-
-    setPosition(Math.floor(Math.random() * 1000) + 1);
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      const entry = await mockApi.addEntry(name, email);
+      setPosition(entry.position);
+      setSubmitted(true);
+      showToast('Successfully joined the waitlist!', 'success');
+    } catch (error) {
+      showToast('Failed to join waitlist', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -157,8 +175,8 @@ export default function PublicWaitlist() {
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required
-                icon={<Users className="w-5 h-5" />}
+                error={errors.name}
+                icon={<User className="w-5 h-5" />}
               />
 
               <Input
@@ -166,7 +184,7 @@ export default function PublicWaitlist() {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
+                error={errors.email}
                 icon={<Mail className="w-5 h-5" />}
               />
 

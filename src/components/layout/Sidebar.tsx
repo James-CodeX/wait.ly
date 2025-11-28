@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -23,6 +22,13 @@ const navItems = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useState(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
 
   return (
     <>
@@ -40,10 +46,12 @@ export default function Sidebar() {
         />
       )}
 
-      <motion.aside
-        initial={false}
-        animate={{ x: isOpen ? 0 : -280 }}
-        className="lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-mint-600/10 p-6 flex flex-col"
+      <aside
+        className={`${
+          isMobile 
+            ? `fixed inset-y-0 left-0 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`
+            : 'static'
+        } w-64 bg-white border-r border-mint-600/10 p-6 flex flex-col`}
       >
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-mint-600 rounded-xl flex items-center justify-center">
@@ -83,7 +91,7 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 }
