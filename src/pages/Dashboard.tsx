@@ -3,23 +3,21 @@ import { Users, TrendingUp, Calendar, Code, Copy, Check, ExternalLink } from 'lu
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { mockApi, WaitlistEntry } from '../utils/mockApi';
-
-interface Stats {
-  totalSignups: number;
-  todaySignups: number;
-  weekSignups: number;
-}
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { dashboardService, DashboardStats, WaitlistEntry } from '../services/dashboard';
+import { useToast } from '../components/ui/Toast';
 
 export default function Dashboard() {
   const location = useLocation();
-  const [stats, setStats] = useState<Stats>({ totalSignups: 0, todaySignups: 0, weekSignups: 0 });
+  const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
+  const [stats, setStats] = useState<DashboardStats>({ totalSignups: 0, todaySignups: 0, weekSignups: 0 });
   const [recentEntries, setRecentEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  const projectId = mockApi.getCurrentProject() || 'project-1';
+  // Get project ID from URL query params or localStorage
+  const projectId = searchParams.get('project') || localStorage.getItem('selectedProjectId') || '';
   const embedUrl = `${window.location.origin}/public/${projectId}`;
   
   const embedCode = `<!-- Add this to your website -->
@@ -57,17 +55,28 @@ function WaitlistForm() {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!projectId) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
-      const [statsData, entries] = await Promise.all([
-        mockApi.getStats(),
-        mockApi.getRecentEntries(10),
-      ]);
-      setStats(statsData);
-      setRecentEntries(entries);
-      setLoading(false);
+      try {
+        const [statsData, entries] = await Promise.all([
+          dashboardService.getStats(projectId),
+          dashboardService.getRecentEntries(projectId, 10),
+        ]);
+        setStats(statsData);
+        setRecentEntries(entries);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        showToast('Failed to load dashboard data', 'error');
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
-  }, [location.state]);
+  }, [projectId, location.state, showToast]);
 
   const copyToClipboard = (code: string, label: string) => {
     navigator.clipboard.writeText(code);
@@ -95,6 +104,22 @@ function WaitlistForm() {
       bg: 'bg-mint-600',
     },
   ];
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 mb-6">
+            Please select a project from the Projects page to view your dashboard.
+          </p>
+          <Button onClick={() => window.location.href = '/projects'}>
+            Go to Projects
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -173,7 +198,7 @@ function WaitlistForm() {
                     <div className="text-right">
                       <p className="text-sm font-medium text-mint-600">#{entry.position}</p>
                       <p className="text-xs text-mint-900/50">
-                        {new Date(entry.createdAt).toLocaleDateString()}
+                        {new Date(entry.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </motion.div>
