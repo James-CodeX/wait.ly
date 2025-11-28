@@ -1,14 +1,19 @@
 import { motion } from 'framer-motion';
 import { Copy, Check, Upload, Plus, Trash2, Save } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
+import { embedService, EmbedConfiguration, CustomField } from '../services/embed';
 
 export default function Embed() {
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'inline' | 'popup' | 'slide-in'>('inline');
   const [config, setConfig] = useState({
     heading: 'Join Our Waitlist',
@@ -19,24 +24,70 @@ export default function Embed() {
     secondaryColor: '#ECFDF5',
     showPosition: true,
     showLogo: true,
+    logoUrl: null as string | null,
+    customCss: null as string | null,
   });
 
-  const [customFields, setCustomFields] = useState<Array<{ id: string; name: string; type: string; required: boolean; enabled: boolean }>>([]);
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   
   const [showCustomFieldInput, setShowCustomFieldInput] = useState(false);
   const [newFieldName, setNewFieldName] = useState('');
 
+  const projectId = searchParams.get('project') || localStorage.getItem('selectedProjectId') || '';
+
   const presetFields = [
-    { name: 'Company', type: 'Text', placeholder: 'Company name' },
-    { name: 'Phone Number', type: 'Phone', placeholder: 'Phone number' },
-    { name: 'Job Title', type: 'Text', placeholder: 'Your role' },
-    { name: 'Company Size', type: 'Select', placeholder: 'Select size' },
-    { name: 'Referral Code', type: 'Text', placeholder: 'Referral code' },
-    { name: 'LinkedIn URL', type: 'URL', placeholder: 'LinkedIn profile' },
+    { name: 'Company', type: 'text', placeholder: 'Company name' },
+    { name: 'Phone Number', type: 'tel', placeholder: 'Phone number' },
+    { name: 'Job Title', type: 'text', placeholder: 'Your role' },
+    { name: 'Company Size', type: 'select', placeholder: 'Select size' },
+    { name: 'Referral Code', type: 'text', placeholder: 'Referral code' },
+    { name: 'LinkedIn URL', type: 'url', placeholder: 'LinkedIn profile' },
   ];
+
+  useEffect(() => {
+    if (projectId) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [projectId]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [embedConfig, fields] = await Promise.all([
+        embedService.getConfiguration(projectId),
+        embedService.getCustomFields(projectId),
+      ]);
+
+      if (embedConfig) {
+        setConfig({
+          heading: embedConfig.heading,
+          description: embedConfig.description || '',
+          buttonText: embedConfig.button_text,
+          successMessage: embedConfig.success_message,
+          primaryColor: embedConfig.primary_color,
+          secondaryColor: embedConfig.secondary_color || '#ECFDF5',
+          showPosition: embedConfig.show_position,
+          showLogo: embedConfig.show_logo,
+          logoUrl: embedConfig.logo_url,
+          customCss: embedConfig.custom_css,
+        });
+        setActiveTab(embedConfig.widget_type as 'inline' | 'popup' | 'slide-in');
+      }
+
+      setCustomFields(fields);
+    } catch (error) {
+      console.error('Failed to load embed configuration:', error);
+      showToast('Failed to load configuration', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const embedCode = `<script src="https://waitly.app/embed.js"></script>
 <div data-waitly-widget="${activeTab}"
+     data-project="${projectId}"
      data-heading="${config.heading}"
      data-button="${config.buttonText}"
      data-color="${config.primaryColor}">
@@ -49,11 +100,42 @@ export default function Embed() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSave = () => {
-    showToast('Configuration saved successfully!', 'success');
+  const handleSave = async () => {
+    if (!projectId) {
+      showToast('No project selected', 'error');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await embedService.upsertConfiguration(projectId, {
+        heading: config.heading,
+        description: config.description,
+        button_text: config.buttonText,
+        success_message: config.successMessage,
+        primary_color: config.primaryColor,
+        secondary_color: config.secondaryColor,
+        show_position: config.showPosition,
+        show_logo: config.showLogo,
+        logo_url: config.logoUrl,
+        custom_css: config.customCss,
+        widget_type: activeTab,
+      });
+      showToast('Configuration saved successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to save configuration:', error);
+      showToast('Failed to save configuration', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleTogglePresetField = (fieldName: string) => {
+  const handleTogglePresetField = async (fieldName: string) => {
+    if (!projectId) {
+      showToast('No project selected', 'error');
+      return;
+    }
+
     const preset = presetFields.find(f => f.name === fieldName);
     if (!preset) return;
 
@@ -61,49 +143,106 @@ export default function Embed() {
     
     if (existingField) {
       // Remove field
-      setCustomFields(customFields.filter(f => f.name !== fieldName));
-      showToast(`${fieldName} removed`, 'success');
+      try {
+        await embedService.deleteCustomField(existingField.id);
+        setCustomFields(customFields.filter(f => f.name !== fieldName));
+        showToast(`${fieldName} removed`, 'success');
+      } catch (error) {
+        console.error('Failed to remove field:', error);
+        showToast('Failed to remove field', 'error');
+      }
     } else {
       // Add field
-      const newField = {
-        id: Date.now().toString(),
-        name: preset.name,
-        type: preset.type,
-        required: false,
-        enabled: true,
-      };
-      setCustomFields([...customFields, newField]);
-      showToast(`${fieldName} added`, 'success');
+      try {
+        const newField = await embedService.addCustomField(projectId, {
+          name: preset.name,
+          type: preset.type,
+          placeholder: preset.placeholder,
+          required: false,
+          enabled: true,
+        });
+        setCustomFields([...customFields, newField]);
+        showToast(`${fieldName} added`, 'success');
+      } catch (error) {
+        console.error('Failed to add field:', error);
+        showToast('Failed to add field', 'error');
+      }
     }
   };
 
-  const handleAddCustomField = () => {
+  const handleAddCustomField = async () => {
+    if (!projectId) {
+      showToast('No project selected', 'error');
+      return;
+    }
+
     if (!newFieldName.trim()) {
       showToast('Please enter a field name', 'error');
       return;
     }
 
-    const newField = {
-      id: Date.now().toString(),
-      name: newFieldName,
-      type: 'Text',
-      required: false,
-      enabled: true,
-    };
-    setCustomFields([...customFields, newField]);
-    setNewFieldName('');
-    setShowCustomFieldInput(false);
-    showToast('Custom field added', 'success');
+    try {
+      const newField = await embedService.addCustomField(projectId, {
+        name: newFieldName,
+        type: 'text',
+        required: false,
+        enabled: true,
+      });
+      setCustomFields([...customFields, newField]);
+      setNewFieldName('');
+      setShowCustomFieldInput(false);
+      showToast('Custom field added', 'success');
+    } catch (error) {
+      console.error('Failed to add custom field:', error);
+      showToast('Failed to add custom field', 'error');
+    }
   };
 
-  const handleDeleteField = (id: string) => {
-    setCustomFields(customFields.filter(f => f.id !== id));
-    showToast('Field removed', 'success');
+  const handleDeleteField = async (id: string) => {
+    try {
+      await embedService.deleteCustomField(id);
+      setCustomFields(customFields.filter(f => f.id !== id));
+      showToast('Field removed', 'success');
+    } catch (error) {
+      console.error('Failed to delete field:', error);
+      showToast('Failed to delete field', 'error');
+    }
   };
 
   const isFieldActive = (fieldName: string) => {
     return customFields.some(f => f.name === fieldName);
   };
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 mb-6">
+            Please select a project from the Projects page to customize your embed widget.
+          </p>
+          <Button onClick={() => window.location.href = '/projects'}>
+            Go to Projects
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+            <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+          </div>
+          <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -176,6 +315,8 @@ export default function Embed() {
                 </label>
                 <textarea
                   rows={4}
+                  value={config.customCss || ''}
+                  onChange={(e) => setConfig({ ...config, customCss: e.target.value })}
                   placeholder=".waitlist-form { /* Your custom styles */ }"
                   className="w-full px-4 py-3 bg-mint-900 text-mint-100 border-2 border-mint-600/20 rounded-xl focus:outline-none focus:border-mint-600 resize-none font-mono text-sm"
                 />
@@ -326,7 +467,7 @@ export default function Embed() {
             )}
           </Card>
 
-          <Button onClick={handleSave} className="w-full">
+          <Button onClick={handleSave} className="w-full" loading={saving} disabled={saving}>
             <Save className="w-4 h-4" />
             Save Configuration
           </Button>
