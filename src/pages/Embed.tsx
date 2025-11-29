@@ -12,6 +12,7 @@ export default function Embed() {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('HTML');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'inline' | 'popup' | 'slide-in'>('inline');
@@ -85,13 +86,57 @@ export default function Embed() {
     }
   };
 
-  const embedCode = `<script src="https://waitly.app/embed.js"></script>
-<div data-waitly-widget="${activeTab}"
-     data-project="${projectId}"
-     data-heading="${config.heading}"
-     data-button="${config.buttonText}"
-     data-color="${config.primaryColor}">
-</div>`;
+
+    const embedSnippets: Record<string, string> = {
+      HTML: `<script src="https://waitly.app/embed.js"></script>
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`,
+      React: `import Script from 'next/script';
+
+  <Script src="https://waitly.app/embed.js" />
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`,
+      Vue: `<script src="https://waitly.app/embed.js"></script>
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`,
+      Angular: `<script src="https://waitly.app/embed.js"></script>
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`,
+      Svelte: `<script src="https://waitly.app/embed.js"></script>
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`,
+      NextJS: `import Script from 'next/script';
+
+  <Script src="https://waitly.app/embed.js" />
+  <div data-waitly-widget="${activeTab}"
+    data-project="${projectId}"
+    data-heading="${config.heading}"
+    data-button="${config.buttonText}"
+    data-color="${config.primaryColor}">
+  </div>`
+    };
+
+    const embedCode = embedSnippets[selectedLang];
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedCode);
@@ -476,10 +521,21 @@ export default function Embed() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-mint-900">Embed Code</h3>
-              <Button onClick={handleCopy} variant="secondary" size="sm">
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copied!' : 'Copy'}
-              </Button>
+              <div className="flex gap-2">
+                <select
+                  value={selectedLang}
+                  onChange={e => setSelectedLang(e.target.value)}
+                  className="px-2 py-1 rounded bg-mint-50 border border-mint-600/20 text-mint-900 text-sm"
+                >
+                  {Object.keys(embedSnippets).map(lang => (
+                    <option key={lang} value={lang}>{lang}</option>
+                  ))}
+                </select>
+                <Button onClick={handleCopy} variant="secondary" size="sm">
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? 'Copied!' : 'Copy'}
+                </Button>
+              </div>
             </div>
             <div className="bg-mint-900 text-mint-100 p-4 rounded-xl overflow-x-auto">
               <pre className="text-sm">
