@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Plus, Mail, Eye, Send, Trash2 } from 'lucide-react';
+import { Plus, Mail, Eye, Send, Trash2, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
@@ -10,6 +10,8 @@ import EmailEditor from '../components/EmailEditor';
 import { emailService, EmailCampaign, EmailTemplate } from '../services/email';
 import { useToast } from '../components/ui/Toast';
 
+type View = 'list' | 'editor';
+
 export default function Emails() {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
@@ -17,7 +19,7 @@ export default function Emails() {
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditorModal, setShowEditorModal] = useState(false);
+  const [view, setView] = useState<View>('list');
   const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -125,7 +127,7 @@ export default function Emails() {
 
   const handleOpenEditor = (campaign: EmailCampaign) => {
     setSelectedCampaign(campaign);
-    setShowEditorModal(true);
+    setView('editor');
   };
 
   const handleSaveEditor = async () => {
@@ -137,12 +139,18 @@ export default function Emails() {
         body: selectedCampaign.body,
       });
       setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
-      setShowEditorModal(false);
+      setView('list');
+      setSelectedCampaign(null);
       showToast('Campaign updated successfully', 'success');
     } catch (error) {
       console.error('Failed to update campaign:', error);
       showToast('Failed to update campaign', 'error');
     }
+  };
+
+  const handleCloseEditor = () => {
+    setView('list');
+    setSelectedCampaign(null);
   };
 
   if (!projectId) {
@@ -170,6 +178,51 @@ export default function Emails() {
             <div key={i} className="h-64 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (view === 'editor' && selectedCampaign) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="secondary"
+              onClick={handleCloseEditor}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Campaigns
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">
+                {selectedCampaign.status === 'sent' ? 'View Campaign' : 'Edit Campaign'}
+              </h1>
+              <p className="text-mint-900/70 dark:text-dark-text-muted">{selectedCampaign.name}</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            {selectedCampaign.status !== 'sent' && (
+              <>
+                <Button variant="secondary" onClick={handleSendTest}>
+                  Send Test
+                </Button>
+                <Button onClick={handleSaveEditor}>
+                  Save Changes
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <EmailEditor
+          subject={selectedCampaign.subject}
+          body={selectedCampaign.body}
+          onSubjectChange={(subject) => setSelectedCampaign({ ...selectedCampaign, subject })}
+          onBodyChange={(body) => setSelectedCampaign({ ...selectedCampaign, body })}
+          disabled={selectedCampaign.status === 'sent'}
+        />
       </div>
     );
   }
@@ -380,43 +433,6 @@ export default function Emails() {
             </Button>
           </div>
         </div>
-      </Modal>
-
-      <Modal
-        isOpen={showEditorModal}
-        onClose={() => setShowEditorModal(false)}
-        title="Email Editor"
-        size="xl"
-      >
-        {selectedCampaign && (
-          <div className="space-y-6">
-            <EmailEditor
-              subject={selectedCampaign.subject}
-              body={selectedCampaign.body}
-              onSubjectChange={(subject) => setSelectedCampaign({ ...selectedCampaign, subject })}
-              onBodyChange={(body) => setSelectedCampaign({ ...selectedCampaign, body })}
-              disabled={selectedCampaign.status === 'sent'}
-            />
-
-            <div className="flex gap-3 pt-4 border-t border-mint-600/10 dark:border-dark-border">
-              {selectedCampaign.status !== 'sent' && (
-                <>
-                  <Button variant="secondary" onClick={handleSendTest} className="flex-1">
-                    Send Test
-                  </Button>
-                  <Button onClick={handleSaveEditor} className="flex-1">
-                    Save & Close
-                  </Button>
-                </>
-              )}
-              {selectedCampaign.status === 'sent' && (
-                <Button onClick={() => setShowEditorModal(false)} className="w-full">
-                  Close
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
       </Modal>
     </div>
   );
