@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Mail, Users, CheckCircle, User } from 'lucide-react';
+import { Mail, Users, CheckCircle, User, Building2, Phone, Briefcase, Hash, Link2, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import Button from '../components/ui/Button';
@@ -7,6 +7,25 @@ import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
 import { useToast } from '../components/ui/Toast';
 import { publicWaitlistService, WaitlistEntry, ProjectInfo } from '../services/publicWaitlist';
+import { EmbedConfiguration, CustomField } from '../services/embed';
+
+const getFieldIcon = (fieldName: string, fieldType: string) => {
+  const name = fieldName.toLowerCase();
+  
+  // Match by field name
+  if (name.includes('company')) return <Building2 className="w-5 h-5" />;
+  if (name.includes('phone')) return <Phone className="w-5 h-5" />;
+  if (name.includes('job') || name.includes('title') || name.includes('role')) return <Briefcase className="w-5 h-5" />;
+  if (name.includes('referral') || name.includes('code')) return <Hash className="w-5 h-5" />;
+  if (name.includes('linkedin') || name.includes('url') || name.includes('website')) return <Link2 className="w-5 h-5" />;
+  
+  // Match by field type
+  if (fieldType === 'tel') return <Phone className="w-5 h-5" />;
+  if (fieldType === 'url') return <Link2 className="w-5 h-5" />;
+  
+  // Default icon
+  return <FileText className="w-5 h-5" />;
+};
 
 export default function PublicWaitlist() {
   const { waitlistId } = useParams<{ waitlistId: string }>();
@@ -15,8 +34,11 @@ export default function PublicWaitlist() {
   const { showToast } = useToast();
   
   const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
+  const [embedConfig, setEmbedConfig] = useState<EmbedConfiguration | null>(null);
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [entry, setEntry] = useState<WaitlistEntry | null>(null);
@@ -33,8 +55,14 @@ export default function PublicWaitlist() {
     
     setPageLoading(true);
     try {
-      const info = await publicWaitlistService.getProjectInfo(waitlistId);
+      const [info, config, fields] = await Promise.all([
+        publicWaitlistService.getProjectInfo(waitlistId),
+        publicWaitlistService.getEmbedConfig(waitlistId),
+        publicWaitlistService.getCustomFields(waitlistId),
+      ]);
       setProjectInfo(info);
+      setEmbedConfig(config);
+      setCustomFields(fields.filter(f => f.enabled));
     } catch (error) {
       console.error('Error loading project:', error);
     } finally {
@@ -54,6 +82,15 @@ export default function PublicWaitlist() {
       setErrors(prev => ({ ...prev, email: 'Email is required' }));
       return;
     }
+
+    // Validate required custom fields
+    for (const field of customFields) {
+      if (field.required && !customFieldValues[field.id]) {
+        setErrors(prev => ({ ...prev, [field.id]: `${field.name} is required` }));
+        return;
+      }
+    }
+
     if (!waitlistId) {
       showToast('Invalid waitlist', 'error');
       return;
@@ -65,12 +102,12 @@ export default function PublicWaitlist() {
         waitlistId,
         name,
         email,
-        undefined,
+        Object.keys(customFieldValues).length > 0 ? customFieldValues : undefined,
         referralCode || undefined
       );
       setEntry(newEntry);
       setSubmitted(true);
-      showToast('Successfully joined the waitlist!', 'success');
+      showToast(embedConfig?.success_message || 'Successfully joined the waitlist!', 'success');
     } catch (error) {
       if (error instanceof Error && error.message === 'Email already registered') {
         setErrors({ email: 'This email is already registered' });
@@ -134,7 +171,7 @@ export default function PublicWaitlist() {
               transition={{ delay: 0.3 }}
               className="text-3xl font-bold text-mint-900 mb-4"
             >
-              You're on the list!
+              {embedConfig?.success_message || "You're on the list!"}
             </motion.h2>
 
             <motion.p
@@ -146,18 +183,21 @@ export default function PublicWaitlist() {
               Thanks for joining, {name}!
             </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-mint-600 text-white rounded-2xl mb-6"
-            >
-              <Users className="w-6 h-6" />
-              <div className="text-left">
-                <p className="text-sm opacity-90">Your Position</p>
-                <p className="text-3xl font-bold">#{entry?.position || 0}</p>
-              </div>
-            </motion.div>
+            {embedConfig?.show_position !== false && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl mb-6 text-white"
+                style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
+              >
+                <Users className="w-6 h-6" />
+                <div className="text-left">
+                  <p className="text-sm opacity-90">Your Position</p>
+                  <p className="text-3xl font-bold">#{entry?.position || 0}</p>
+                </div>
+              </motion.div>
+            )}
 
             <motion.p
               initial={{ opacity: 0 }}
@@ -197,6 +237,9 @@ export default function PublicWaitlist() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+      {embedConfig?.custom_css && (
+        <style dangerouslySetInnerHTML={{ __html: embedConfig.custom_css }} />
+      )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -209,9 +252,20 @@ export default function PublicWaitlist() {
             transition={{ type: 'spring' }}
             className="inline-flex items-center gap-3 mb-6"
           >
-            <div className="w-16 h-16 bg-mint-600 rounded-2xl flex items-center justify-center">
-              <Users className="w-10 h-10 text-white" />
-            </div>
+            {embedConfig?.show_logo && embedConfig?.logo_url ? (
+              <img 
+                src={embedConfig.logo_url} 
+                alt={projectInfo.name}
+                className="w-16 h-16 rounded-2xl object-cover"
+              />
+            ) : (
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
+              >
+                <Users className="w-10 h-10 text-white" />
+              </div>
+            )}
             <h1 className="text-4xl font-bold text-mint-900">{projectInfo.name}</h1>
           </motion.div>
 
@@ -221,7 +275,7 @@ export default function PublicWaitlist() {
             transition={{ delay: 0.2 }}
             className="text-3xl md:text-4xl font-bold text-mint-900 mb-4"
           >
-            {projectInfo.description || 'Join Our Exclusive Waitlist'}
+            {embedConfig?.heading || projectInfo.description || 'Join Our Exclusive Waitlist'}
           </motion.h2>
 
           <motion.p
@@ -230,7 +284,7 @@ export default function PublicWaitlist() {
             transition={{ delay: 0.3 }}
             className="text-xl text-mint-900/70"
           >
-            Be the first to know when we launch. Get early access and exclusive perks!
+            {embedConfig?.description || 'Be the first to know when we launch. Get early access and exclusive perks!'}
           </motion.p>
         </div>
 
@@ -259,9 +313,33 @@ export default function PublicWaitlist() {
                 icon={<Mail className="w-5 h-5" />}
               />
 
-              <Button type="submit" loading={loading} className="w-full text-lg py-4">
-                Join Waitlist
+              {customFields.map((field) => (
+                <Input
+                  key={field.id}
+                  type={field.type}
+                  placeholder={field.placeholder || field.name}
+                  value={customFieldValues[field.id] || ''}
+                  onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.id]: e.target.value })}
+                  error={errors[field.id]}
+                  required={field.required}
+                  icon={getFieldIcon(field.name, field.type)}
+                />
+              ))}
+
+              <Button 
+                type="submit" 
+                loading={loading} 
+                className="w-full text-lg py-4"
+                style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
+              >
+                {embedConfig?.button_text || 'Join Waitlist'}
               </Button>
+
+              {embedConfig?.show_position && (
+                <p className="text-sm text-center text-mint-900/70">
+                  You'll be #{(projectInfo.total_signups + 1).toLocaleString()} on the list
+                </p>
+              )}
 
               <p className="text-center text-sm text-mint-900/70">
                 Join <strong>{projectInfo.total_signups.toLocaleString()}</strong> others already on the list

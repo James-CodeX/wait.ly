@@ -143,7 +143,7 @@ export const publicWaitlistService = {
       .from('custom_fields')
       .select('*')
       .eq('project_id', projectId)
-      .order('position', { ascending: true });
+      .order('order', { ascending: true });
 
     if (error) {
       console.error('Error fetching custom fields:', error);

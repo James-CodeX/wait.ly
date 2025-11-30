@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Copy, Check, Upload, Plus, Trash2, Save } from 'lucide-react';
+import { Copy, Check, Upload, Plus, Trash2, Save, Building2, Phone, Briefcase, Hash, Link2, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
@@ -7,6 +7,24 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { embedService, CustomField } from '../services/embed';
+
+const getFieldIcon = (fieldName: string, fieldType: string) => {
+  const name = fieldName.toLowerCase();
+  
+  // Match by field name
+  if (name.includes('company')) return <Building2 className="w-5 h-5 text-mint-900/40" />;
+  if (name.includes('phone')) return <Phone className="w-5 h-5 text-mint-900/40" />;
+  if (name.includes('job') || name.includes('title') || name.includes('role')) return <Briefcase className="w-5 h-5 text-mint-900/40" />;
+  if (name.includes('referral') || name.includes('code')) return <Hash className="w-5 h-5 text-mint-900/40" />;
+  if (name.includes('linkedin') || name.includes('url') || name.includes('website')) return <Link2 className="w-5 h-5 text-mint-900/40" />;
+  
+  // Match by field type
+  if (fieldType === 'tel') return <Phone className="w-5 h-5 text-mint-900/40" />;
+  if (fieldType === 'url') return <Link2 className="w-5 h-5 text-mint-900/40" />;
+  
+  // Default icon
+  return <FileText className="w-5 h-5 text-mint-900/40" />;
+};
 
 export default function Embed() {
   const { showToast } = useToast();
@@ -569,26 +587,44 @@ export default function Embed() {
                   {config.description}
                 </p>
                 <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
-                    style={{ borderColor: `${config.primaryColor}33` }}
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
-                    style={{ borderColor: `${config.primaryColor}33` }}
-                  />
-                  {customFields.map((field) => (
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
                     <input
-                      key={field.id}
                       type="text"
-                      placeholder={field.name}
-                      className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                      placeholder="Name"
+                      className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
                       style={{ borderColor: `${config.primaryColor}33` }}
                     />
+                  </div>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                      style={{ borderColor: `${config.primaryColor}33` }}
+                    />
+                  </div>
+                  {customFields.map((field) => (
+                    <div key={field.id} className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                        {getFieldIcon(field.name, field.type)}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder={field.name}
+                        className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                        style={{ borderColor: `${config.primaryColor}33` }}
+                      />
+                    </div>
                   ))}
                   <button
                     className="w-full px-6 py-3 rounded-xl font-medium text-white shadow-mint"
