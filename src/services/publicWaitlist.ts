@@ -1,5 +1,24 @@
 import { supabase } from '../lib/supabase';
 
+async function triggerWelcomeEmail(entryId: string): Promise<void> {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabaseAnonKey,
+    },
+    body: JSON.stringify({ entryId }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to trigger welcome email');
+  }
+}
+
 export interface WaitlistEntry {
   id: string;
   project_id: string;
@@ -120,6 +139,11 @@ export const publicWaitlistService = {
       console.error('Error creating entry:', error);
       throw error;
     }
+
+    // Trigger welcome email asynchronously (don't wait for it)
+    triggerWelcomeEmail(data.id).catch(err => {
+      console.error('Failed to trigger welcome email:', err);
+    });
 
     return data;
   },

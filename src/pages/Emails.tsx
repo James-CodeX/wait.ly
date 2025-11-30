@@ -126,8 +126,19 @@ export default function Emails() {
     }
   };
 
-  const handleSendTest = () => {
-    showToast('Test email sent!', 'success');
+  const handleSendTest = async () => {
+    if (!selectedCampaign) return;
+
+    const testEmail = prompt('Enter email address to send test to:');
+    if (!testEmail) return;
+
+    try {
+      await emailService.sendTestEmail(selectedCampaign.id, testEmail);
+      showToast(`Test email sent to ${testEmail}!`, 'success');
+    } catch (error) {
+      console.error('Failed to send test email:', error);
+      showToast('Failed to send test email', 'error');
+    }
   };
 
   const handleOpenEditor = (campaign: EmailCampaign) => {
