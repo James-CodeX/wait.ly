@@ -65,21 +65,21 @@ export default function Sidebar() {
           isMobile 
             ? `fixed inset-y-0 left-0 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`
             : 'fixed inset-y-0 left-0'
-        } w-64 bg-white border-r border-mint-600/10 p-6 flex flex-col overflow-y-auto`}
+        } w-64 bg-white dark:bg-dark-card border-r border-mint-600/10 dark:border-dark-border p-6 flex flex-col overflow-y-auto`}
       >
         <button
           onClick={() => navigate('/projects')}
-          className="flex items-center gap-2 text-mint-600 hover:bg-mint-50 px-3 py-2 rounded-lg transition-colors mb-4"
+          className="flex items-center gap-2 text-mint-600 dark:text-mint-400 hover:bg-mint-50 dark:hover:bg-dark-hover px-3 py-2 rounded-lg transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="text-sm font-medium">All Projects</span>
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-mint-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center">
             <Users className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-mint-900">Wait.ly</h1>
+          <h1 className="text-2xl font-bold text-mint-900 dark:text-dark-text">Wait.ly</h1>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -91,8 +91,8 @@ export default function Sidebar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-mint-600 text-white shadow-mint'
-                    : 'text-mint-900 hover:bg-mint-50'
+                    ? 'bg-mint-600 dark:bg-mint-500 text-white shadow-mint'
+                    : 'text-mint-900 dark:text-dark-text hover:bg-mint-50 dark:hover:bg-dark-hover'
                 }`
               }
             >
@@ -102,21 +102,21 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        <div className="pt-6 border-t border-mint-600/10">
+        <div className="pt-6 border-t border-mint-600/10 dark:border-dark-border">
           <div className="flex items-center gap-3 px-4 py-3 mb-2">
-            <div className="w-10 h-10 bg-mint-600 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-mint-600 dark:bg-mint-500 rounded-full flex items-center justify-center text-white font-semibold">
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-mint-900 truncate">
+              <p className="font-medium text-mint-900 dark:text-dark-text truncate">
                 {user?.user_metadata?.name || 'User'}
               </p>
-              <p className="text-sm text-mint-900/70 truncate">{user?.email}</p>
+              <p className="text-sm text-mint-900/70 dark:text-dark-text-muted truncate">{user?.email}</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 text-mint-900 hover:bg-mint-50 rounded-xl transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-mint-900 dark:text-dark-text hover:bg-mint-50 dark:hover:bg-dark-hover rounded-xl transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Sign Out</span>

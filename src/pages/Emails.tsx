@@ -148,8 +148,8 @@ export default function Emails() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md text-center">
-          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
-          <p className="text-mint-900/70 mb-6">
+          <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 dark:text-dark-text-muted mb-6">
             Please select a project from the Projects page to manage email campaigns.
           </p>
           <Button onClick={() => window.location.href = '/projects'}>
@@ -163,10 +163,10 @@ export default function Emails() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+        <div className="h-8 w-48 bg-mint-50 dark:bg-dark-card rounded animate-pulse" />
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-64 bg-mint-50 rounded-2xl animate-pulse" />
+            <div key={i} className="h-64 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -177,8 +177,8 @@ export default function Emails() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-mint-900 mb-2">Email Campaigns</h1>
-          <p className="text-mint-900/70">Create and manage email campaigns</p>
+          <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Email Campaigns</h1>
+          <p className="text-mint-900/70 dark:text-dark-text-muted">Create and manage email campaigns</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="w-4 h-4" />
@@ -189,8 +189,8 @@ export default function Emails() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campaigns.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <Mail className="w-16 h-16 text-mint-600 mx-auto mb-4" />
-            <p className="text-mint-900/70">No email campaigns yet. Create your first one!</p>
+            <Mail className="w-16 h-16 text-mint-600 dark:text-mint-400 mx-auto mb-4" />
+            <p className="text-mint-900/70 dark:text-dark-text-muted">No email campaigns yet. Create your first one!</p>
           </div>
         ) : (
           campaigns.map((campaign, index) => (
@@ -202,36 +202,36 @@ export default function Emails() {
             >
               <Card hover className="h-full">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
                       campaign.status === 'sent'
-                        ? 'bg-mint-600 text-white'
-                        : 'bg-mint-50 text-mint-900'
+                        ? 'bg-mint-600 dark:bg-mint-500 text-white'
+                        : 'bg-mint-50 dark:bg-dark-hover text-mint-900 dark:text-dark-text'
                     }`}
                   >
                     {campaign.status}
                   </span>
                 </div>
 
-                <h3 className="text-xl font-semibold text-mint-900 mb-2">{campaign.name}</h3>
-                <p className="text-mint-900/70 mb-4">{campaign.subject}</p>
+                <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-2">{campaign.name}</h3>
+                <p className="text-mint-900/70 dark:text-dark-text-muted mb-4">{campaign.subject}</p>
 
                 {campaign.status === 'sent' && (
                   <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-mint-900/70">Sent</p>
-                      <p className="text-lg font-semibold text-mint-900">{campaign.total_sent}</p>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">Sent</p>
+                      <p className="text-lg font-semibold text-mint-900 dark:text-dark-text">{campaign.total_sent}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-mint-900/70">Opened</p>
-                      <p className="text-lg font-semibold text-mint-900">{campaign.total_opened}</p>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">Opened</p>
+                      <p className="text-lg font-semibold text-mint-900 dark:text-dark-text">{campaign.total_opened}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-mint-900/70">Clicked</p>
-                      <p className="text-lg font-semibold text-mint-900">{campaign.total_clicked}</p>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">Clicked</p>
+                      <p className="text-lg font-semibold text-mint-900 dark:text-dark-text">{campaign.total_clicked}</p>
                     </div>
                   </div>
                 )}
@@ -260,7 +260,7 @@ export default function Emails() {
                     <Button
                       variant="ghost"
                       onClick={() => handleDeleteCampaign(campaign.id)}
-                      className="text-red-500 hover:bg-red-50"
+                      className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -273,11 +273,11 @@ export default function Emails() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-mint-900 mb-4">Email Templates</h2>
+        <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-4">Email Templates</h2>
         <div className="grid md:grid-cols-2 gap-6">
           {templates.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <p className="text-mint-900/70">No templates yet</p>
+              <p className="text-mint-900/70 dark:text-dark-text-muted">No templates yet</p>
             </div>
           ) : (
             templates.map((template, index) => (
@@ -288,10 +288,10 @@ export default function Emails() {
                 transition={{ delay: 0.3 + index * 0.1 }}
               >
                 <Card hover>
-                  <h3 className="text-xl font-semibold text-mint-900 mb-2">{template.name}</h3>
-                  <p className="text-mint-900/70 mb-4">{template.subject}</p>
-                  <div className="bg-mint-50 p-4 rounded-xl mb-4">
-                    <pre className="text-sm text-mint-900 whitespace-pre-wrap line-clamp-4">{template.body}</pre>
+                  <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-2">{template.name}</h3>
+                  <p className="text-mint-900/70 dark:text-dark-text-muted mb-4">{template.subject}</p>
+                  <div className="bg-mint-50 dark:bg-dark-hover p-4 rounded-xl mb-4">
+                    <pre className="text-sm text-mint-900 dark:text-dark-text whitespace-pre-wrap line-clamp-4">{template.body}</pre>
                   </div>
                   <Button
                     variant="secondary"
@@ -330,9 +330,9 @@ export default function Emails() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">Template</label>
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Template</label>
             <select 
-              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600"
+              className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
               value={formData.templateId}
               onChange={(e) => {
                 const template = templates.find(t => t.id === e.target.value);
@@ -358,9 +358,9 @@ export default function Emails() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">Recipients</label>
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Recipients</label>
             <select 
-              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600"
+              className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
               value={formData.recipientFilter}
               onChange={(e) => setFormData({ ...formData, recipientFilter: e.target.value })}
             >
@@ -397,19 +397,19 @@ export default function Emails() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-mint-900 mb-2">Message</label>
+              <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Message</label>
               <textarea
                 rows={10}
                 value={selectedCampaign.body}
                 onChange={(e) => setSelectedCampaign({ ...selectedCampaign, body: e.target.value })}
                 disabled={selectedCampaign.status === 'sent'}
-                className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 focus:outline-none focus:border-mint-600 resize-none disabled:opacity-50"
+                className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 resize-none disabled:opacity-50"
               />
             </div>
 
-            <div className="bg-mint-50 p-4 rounded-xl">
-              <p className="text-sm text-mint-900/70">
-                <strong>Available variables:</strong> {'{'}
+            <div className="bg-mint-50 dark:bg-dark-hover p-4 rounded-xl">
+              <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">
+                <strong className="dark:text-dark-text">Available variables:</strong> {'{'}
                 {'{'}name{'}'}
                 {'}'}, {'{'}
                 {'{'}position{'}'}

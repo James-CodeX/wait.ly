@@ -25,7 +25,7 @@ export default function Card({
 
   return (
     <Component
-      className={`${glass ? 'glass-mint' : 'bg-mint-50'} rounded-2xl shadow-mint p-6 ${className}`}
+      className={`${glass ? 'glass-mint' : 'bg-mint-50 dark:bg-dark-card'} rounded-2xl shadow-mint p-6 ${className}`}
       onClick={onClick}
       {...motionProps}
     >

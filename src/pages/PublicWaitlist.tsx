@@ -129,18 +129,18 @@ export default function PublicWaitlist() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
-        <p className="text-mint-900/70">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <p className="text-mint-900/70 dark:text-gray-400">Loading...</p>
       </div>
     );
   }
 
   if (!projectInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
         <Card className="text-center">
-          <h2 className="text-2xl font-bold text-mint-900 mb-2">Waitlist Not Found</h2>
-          <p className="text-mint-900/70">This waitlist does not exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-mint-900 dark:text-gray-100 mb-2">Waitlist Not Found</h2>
+          <p className="text-mint-900/70 dark:text-gray-400">This waitlist does not exist or has been removed.</p>
         </Card>
       </div>
     );
@@ -148,7 +148,7 @@ export default function PublicWaitlist() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -169,7 +169,7 @@ export default function PublicWaitlist() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-3xl font-bold text-mint-900 mb-4"
+              className="text-3xl font-bold text-mint-900 dark:text-gray-100 mb-4"
             >
               {embedConfig?.success_message || "You're on the list!"}
             </motion.h2>
@@ -178,7 +178,7 @@ export default function PublicWaitlist() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-mint-900/70 mb-6"
+              className="text-xl text-mint-900/70 dark:text-gray-300 mb-6"
             >
               Thanks for joining, {name}!
             </motion.p>
@@ -203,7 +203,7 @@ export default function PublicWaitlist() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-mint-900/70 mb-6"
+              className="text-mint-900/70 dark:text-gray-300 mb-6"
             >
               We've sent a confirmation email to <strong>{email}</strong>
             </motion.p>
@@ -212,12 +212,12 @@ export default function PublicWaitlist() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="p-6 bg-mint-50 rounded-xl"
+              className="p-6 bg-mint-50 dark:bg-gray-700 rounded-xl"
             >
-              <h3 className="font-semibold text-mint-900 mb-2">
+              <h3 className="font-semibold text-mint-900 dark:text-gray-100 mb-2">
                 Move up the list faster!
               </h3>
-              <p className="text-sm text-mint-900/70 mb-4">
+              <p className="text-sm text-mint-900/70 dark:text-gray-300 mb-4">
                 Share your unique referral link and get priority access
               </p>
               <div className="flex gap-2">
@@ -236,7 +236,7 @@ export default function PublicWaitlist() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
       {embedConfig?.custom_css && (
         <style dangerouslySetInnerHTML={{ __html: embedConfig.custom_css }} />
       )}
@@ -266,14 +266,14 @@ export default function PublicWaitlist() {
                 <Users className="w-10 h-10 text-white" />
               </div>
             )}
-            <h1 className="text-4xl font-bold text-mint-900">{projectInfo.name}</h1>
+            <h1 className="text-4xl font-bold text-mint-900 dark:text-gray-100">{projectInfo.name}</h1>
           </motion.div>
 
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl md:text-4xl font-bold text-mint-900 mb-4"
+            className="text-3xl md:text-4xl font-bold text-mint-900 dark:text-gray-100 mb-4"
           >
             {embedConfig?.heading || projectInfo.description || 'Join Our Exclusive Waitlist'}
           </motion.h2>
@@ -282,7 +282,7 @@ export default function PublicWaitlist() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-mint-900/70"
+            className="text-xl text-mint-900/70 dark:text-gray-300"
           >
             {embedConfig?.description || 'Be the first to know when we launch. Get early access and exclusive perks!'}
           </motion.p>
@@ -336,12 +336,12 @@ export default function PublicWaitlist() {
               </Button>
 
               {embedConfig?.show_position && (
-                <p className="text-sm text-center text-mint-900/70">
+                <p className="text-sm text-center text-mint-900/70 dark:text-gray-400">
                   You'll be #{(projectInfo.total_signups + 1).toLocaleString()} on the list
                 </p>
               )}
 
-              <p className="text-center text-sm text-mint-900/70">
+              <p className="text-center text-sm text-mint-900/70 dark:text-gray-400">
                 Join <strong>{projectInfo.total_signups.toLocaleString()}</strong> others already on the list
               </p>
             </form>
@@ -365,11 +365,11 @@ export default function PublicWaitlist() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + index * 0.1 }}
             >
-              <Card className="text-center bg-white">
+              <Card className="text-center bg-white dark:bg-gray-800">
                 <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center mx-auto mb-3">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
-                <p className="font-medium text-mint-900">{feature.text}</p>
+                <p className="font-medium text-mint-900 dark:text-gray-100">{feature.text}</p>
               </Card>
             </motion.div>
           ))}

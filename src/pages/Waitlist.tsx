@@ -129,8 +129,8 @@ export default function Waitlist() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md text-center">
-          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
-          <p className="text-mint-900/70 mb-6">
+          <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 dark:text-dark-text-muted mb-6">
             Please select a project from the Projects page to view the waitlist.
           </p>
           <Button onClick={() => window.location.href = '/projects'}>
@@ -144,8 +144,8 @@ export default function Waitlist() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
-        <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+        <div className="h-8 w-48 bg-mint-50 dark:bg-dark-card rounded animate-pulse" />
+        <div className="h-96 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
       </div>
     );
   }
@@ -154,8 +154,8 @@ export default function Waitlist() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-mint-900 mb-2">Waitlist</h1>
-          <p className="text-mint-900/70">Manage your waitlist entries</p>
+          <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Waitlist</h1>
+          <p className="text-mint-900/70 dark:text-dark-text-muted">Manage your waitlist entries</p>
         </div>
         <Button onClick={handleExport} variant="secondary">
           <Download className="w-4 h-4" />
@@ -172,12 +172,12 @@ export default function Waitlist() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 focus:ring-4 focus:ring-mint-600/10 transition-all"
+              className="w-full pl-10 pr-10 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 focus:ring-4 focus:ring-mint-600/10 dark:focus:ring-mint-500/20 transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-mint-600 hover:bg-mint-50 p-1 rounded-lg"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-mint-600 dark:text-mint-400 hover:bg-mint-50 dark:hover:bg-dark-hover p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -188,18 +188,18 @@ export default function Waitlist() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-mint-600/10">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Position</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Name</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Email</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900">Date</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-mint-900">Actions</th>
+              <tr className="border-b border-mint-600/10 dark:border-dark-border">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900 dark:text-dark-text">Position</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900 dark:text-dark-text">Name</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900 dark:text-dark-text">Email</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-mint-900 dark:text-dark-text">Date</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-mint-900 dark:text-dark-text">Actions</th>
               </tr>
             </thead>
             <tbody>
               {entries.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12 text-mint-900/70">
+                  <td colSpan={5} className="text-center py-12 text-mint-900/70 dark:text-dark-text-muted">
                     {searchQuery ? 'No entries found' : 'No entries yet'}
                   </td>
                 </tr>
@@ -210,23 +210,23 @@ export default function Waitlist() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03 }}
-                    className="border-b border-mint-600/10 hover:bg-mint-50 transition-colors"
+                    className="border-b border-mint-600/10 dark:border-dark-border hover:bg-mint-50 dark:hover:bg-dark-hover transition-colors"
                   >
                     <td className="py-4 px-4">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-mint-600 text-white rounded-lg text-sm font-semibold">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-mint-600 dark:bg-mint-500 text-white rounded-lg text-sm font-semibold">
                         {entry.position}
                       </span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-mint-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        <div className="w-10 h-10 bg-mint-600 dark:bg-mint-500 rounded-full flex items-center justify-center text-white font-semibold">
                           {entry.name.charAt(0)}
                         </div>
-                        <span className="font-medium text-mint-900">{entry.name}</span>
+                        <span className="font-medium text-mint-900 dark:text-dark-text">{entry.name}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-mint-900/70">{entry.email}</td>
-                    <td className="py-4 px-4 text-mint-900/70">
+                    <td className="py-4 px-4 text-mint-900/70 dark:text-dark-text-muted">{entry.email}</td>
+                    <td className="py-4 px-4 text-mint-900/70 dark:text-dark-text-muted">
                       {new Date(entry.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-4">
@@ -249,7 +249,7 @@ export default function Waitlist() {
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-mint-900/70">
+          <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">
             Showing {entries.length} of {total} entries
           </p>
           
@@ -272,7 +272,7 @@ export default function Waitlist() {
         title="Delete Entry"
       >
         <div className="space-y-6">
-          <p className="text-mint-900/70">
+          <p className="text-mint-900/70 dark:text-dark-text-muted">
             Are you sure you want to delete <strong>{deleteModal.entry?.name}</strong>? This cannot be undone.
           </p>
           <div className="flex gap-3 justify-end">

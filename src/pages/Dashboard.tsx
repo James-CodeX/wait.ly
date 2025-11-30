@@ -109,8 +109,8 @@ function WaitlistForm() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md text-center">
-          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
-          <p className="text-mint-900/70 mb-6">
+          <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 dark:text-dark-text-muted mb-6">
             Please select a project from the Projects page to view your dashboard.
           </p>
           <Button onClick={() => window.location.href = '/projects'}>
@@ -125,14 +125,14 @@ function WaitlistForm() {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+          <div className="h-8 w-48 bg-mint-50 dark:bg-dark-card rounded animate-pulse" />
           <div className="grid grid-cols-1 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-mint-50 rounded-2xl animate-pulse" />
+              <div key={i} className="h-32 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
             ))}
           </div>
         </div>
-        <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+        <div className="h-96 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
       </div>
     );
   }
@@ -142,8 +142,8 @@ function WaitlistForm() {
       {/* Left Column - Stats & Recent Signups */}
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-mint-900 mb-2">Dashboard</h1>
-          <p className="text-mint-900/70">Welcome back! Here's your waitlist overview.</p>
+          <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Dashboard</h1>
+          <p className="text-mint-900/70 dark:text-dark-text-muted">Welcome back! Here's your waitlist overview.</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -156,12 +156,12 @@ function WaitlistForm() {
             >
               <Card hover>
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-12 h-12 ${stat.bg} dark:bg-mint-500 rounded-xl flex items-center justify-center flex-shrink-0`}>
                     <stat.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-mint-900/70">{stat.label}</p>
-                    <p className="text-3xl font-bold text-mint-900">{stat.value}</p>
+                    <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">{stat.label}</p>
+                    <p className="text-3xl font-bold text-mint-900 dark:text-dark-text">{stat.value}</p>
                   </div>
                 </div>
               </Card>
@@ -175,10 +175,10 @@ function WaitlistForm() {
           transition={{ delay: 0.3 }}
         >
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-6">Recent Signups</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-6">Recent Signups</h3>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {recentEntries.length === 0 ? (
-                <p className="text-center py-8 text-mint-900/70">No signups yet</p>
+                <p className="text-center py-8 text-mint-900/70 dark:text-dark-text-muted">No signups yet</p>
               ) : (
                 recentEntries.map((entry, index) => (
                   <motion.div
@@ -186,18 +186,18 @@ function WaitlistForm() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.05 }}
-                    className="flex items-center gap-3 p-3 bg-white hover:bg-mint-50 rounded-xl transition-colors border border-mint-600/10"
+                    className="flex items-center gap-3 p-3 bg-white dark:bg-dark-bg hover:bg-mint-50 dark:hover:bg-dark-hover rounded-xl transition-colors border border-mint-600/10 dark:border-dark-border"
                   >
-                    <div className="w-10 h-10 bg-mint-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                    <div className="w-10 h-10 bg-mint-600 dark:bg-mint-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                       {entry.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-mint-900 truncate">{entry.name}</p>
-                      <p className="text-sm text-mint-900/70 truncate">{entry.email}</p>
+                      <p className="font-medium text-mint-900 dark:text-dark-text truncate">{entry.name}</p>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted truncate">{entry.email}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-mint-600">#{entry.position}</p>
-                      <p className="text-xs text-mint-900/50">
+                      <p className="text-sm font-medium text-mint-600 dark:text-mint-400">#{entry.position}</p>
+                      <p className="text-xs text-mint-900/50 dark:text-dark-text-muted">
                         {new Date(entry.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -218,24 +218,24 @@ function WaitlistForm() {
         >
           <Card glass>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center">
                 <Code className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-mint-900">Quick Start</h2>
-                <p className="text-mint-900/70">Get up and running in minutes</p>
+                <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text">Quick Start</h2>
+                <p className="text-mint-900/70 dark:text-dark-text-muted">Get up and running in minutes</p>
               </div>
             </div>
 
             <div className="space-y-6">
               {/* Step 1: Public Page */}
-              <div className="border-l-4 border-mint-600 pl-4">
-                <h3 className="font-semibold text-mint-900 mb-2">1. Share Your Public Page</h3>
-                <p className="text-sm text-mint-900/70 mb-3">
+              <div className="border-l-4 border-mint-600 dark:border-mint-500 pl-4">
+                <h3 className="font-semibold text-mint-900 dark:text-dark-text mb-2">1. Share Your Public Page</h3>
+                <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-3">
                   The easiest way - just share this link with your audience
                 </p>
-                <div className="bg-mint-900 p-3 rounded-lg flex items-center justify-between gap-2">
-                  <code className="text-xs text-mint-50 flex-1 overflow-x-auto">{embedUrl}</code>
+                <div className="bg-mint-900 dark:bg-dark-bg p-3 rounded-lg flex items-center justify-between gap-2">
+                  <code className="text-xs text-mint-50 dark:text-dark-text flex-1 overflow-x-auto">{embedUrl}</code>
                   <Button
                     size="sm"
                     onClick={() => copyToClipboard(embedUrl, 'url')}
@@ -252,21 +252,21 @@ function WaitlistForm() {
                   href={embedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-mint-600 hover:text-mint-700 mt-2 font-medium"
+                  className="inline-flex items-center gap-2 text-sm text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300 mt-2 font-medium"
                 >
                   Preview page <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
 
               {/* Step 2: Embed */}
-              <div className="border-l-4 border-mint-600 pl-4">
-                <h3 className="font-semibold text-mint-900 mb-2">2. Embed on Your Website</h3>
-                <p className="text-sm text-mint-900/70 mb-3">
+              <div className="border-l-4 border-mint-600 dark:border-mint-500 pl-4">
+                <h3 className="font-semibold text-mint-900 dark:text-dark-text mb-2">2. Embed on Your Website</h3>
+                <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-3">
                   Add this iframe code anywhere on your site
                 </p>
-                <div className="bg-mint-900 p-3 rounded-lg">
+                <div className="bg-mint-900 dark:bg-dark-bg p-3 rounded-lg">
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <code className="text-xs text-mint-50 flex-1 overflow-x-auto whitespace-pre">
+                    <code className="text-xs text-mint-50 dark:text-dark-text flex-1 overflow-x-auto whitespace-pre">
                       {embedCode}
                     </code>
                     <Button
@@ -285,14 +285,14 @@ function WaitlistForm() {
               </div>
 
               {/* Step 3: Custom Integration */}
-              <div className="border-l-4 border-mint-600 pl-4">
-                <h3 className="font-semibold text-mint-900 mb-2">3. Custom Integration</h3>
-                <p className="text-sm text-mint-900/70 mb-3">
+              <div className="border-l-4 border-mint-600 dark:border-mint-500 pl-4">
+                <h3 className="font-semibold text-mint-900 dark:text-dark-text mb-2">3. Custom Integration</h3>
+                <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-3">
                   Build your own form and connect via API
                 </p>
-                <div className="bg-mint-900 p-3 rounded-lg">
+                <div className="bg-mint-900 dark:bg-dark-bg p-3 rounded-lg">
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <code className="text-xs text-mint-50 flex-1 overflow-x-auto whitespace-pre font-mono">
+                    <code className="text-xs text-mint-50 dark:text-dark-text flex-1 overflow-x-auto whitespace-pre font-mono">
                       {reactCode}
                     </code>
                     <Button
@@ -311,10 +311,10 @@ function WaitlistForm() {
               </div>
 
               {/* Help Box */}
-              <div className="bg-mint-50 border-2 border-mint-600/20 rounded-xl p-4">
-                <p className="text-sm text-mint-900/70">
-                  <span className="font-semibold text-mint-900">Need help?</span> Check out the{' '}
-                  <a href="/embed" className="text-mint-600 hover:text-mint-700 font-medium">
+              <div className="bg-mint-50 dark:bg-dark-hover border-2 border-mint-600/20 dark:border-dark-border rounded-xl p-4">
+                <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">
+                  <span className="font-semibold text-mint-900 dark:text-dark-text">Need help?</span> Check out the{' '}
+                  <a href="/embed" className="text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300 font-medium">
                     Embed
                   </a>{' '}
                   page for more customization options and detailed documentation.

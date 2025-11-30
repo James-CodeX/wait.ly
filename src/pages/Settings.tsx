@@ -170,7 +170,7 @@ export default function Settings() {
   if (!projectId) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mint-900/70">No project selected</p>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">No project selected</p>
       </div>
     );
   }
@@ -178,7 +178,7 @@ export default function Settings() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mint-900/70">Loading settings...</p>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">Loading settings...</p>
       </div>
     );
   }
@@ -186,8 +186,8 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-mint-900 mb-2">Settings</h1>
-        <p className="text-mint-900/70">Manage your waitlist configuration</p>
+        <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Settings</h1>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">Manage your waitlist configuration</p>
       </div>
 
       <div className="grid lg:grid-cols-4 gap-6">
@@ -199,8 +199,8 @@ export default function Settings() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
                   activeTab === tab.id
-                    ? 'bg-mint-600 text-white shadow-mint'
-                    : 'text-mint-900 hover:bg-mint-50'
+                    ? 'bg-mint-600 dark:bg-mint-500 text-white shadow-mint'
+                    : 'text-mint-900 dark:text-dark-text hover:bg-mint-50 dark:hover:bg-dark-hover'
                 }`}
               >
                 {tab.label}
@@ -217,14 +217,14 @@ export default function Settings() {
           >
             {activeTab === 'integrations' && (
               <Card>
-                <h2 className="text-2xl font-bold text-mint-900 mb-6">Integrations</h2>
+                <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-6">Integrations</h2>
                 
                 {/* API Keys Section */}
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-mint-900">API Keys</h3>
-                      <p className="text-sm text-mint-900/70">Manage API keys for programmatic access</p>
+                      <h3 className="text-lg font-semibold text-mint-900 dark:text-dark-text">API Keys</h3>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">Manage API keys for programmatic access</p>
                     </div>
                     <Button onClick={() => setShowNewKeyModal(true)}>
                       <Plus className="w-4 h-4" />
@@ -234,33 +234,33 @@ export default function Settings() {
 
                   <div className="space-y-3">
                     {apiKeys.length === 0 ? (
-                      <div className="p-6 bg-mint-50 rounded-xl text-center">
-                        <p className="text-mint-900/70">No API keys yet. Create one to get started.</p>
+                      <div className="p-6 bg-mint-50 dark:bg-dark-hover rounded-xl text-center">
+                        <p className="text-mint-900/70 dark:text-dark-text-muted">No API keys yet. Create one to get started.</p>
                       </div>
                     ) : (
                       apiKeys.map((key) => (
-                        <div key={key.id} className="flex items-center justify-between p-4 bg-mint-50 rounded-xl">
+                        <div key={key.id} className="flex items-center justify-between p-4 bg-mint-50 dark:bg-dark-hover rounded-xl">
                           <div className="flex-1">
-                            <p className="font-medium text-mint-900">{key.name}</p>
+                            <p className="font-medium text-mint-900 dark:text-dark-text">{key.name}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <code className="text-sm text-mint-900/70 bg-white px-2 py-1 rounded">
+                              <code className="text-sm text-mint-900/70 dark:text-dark-text-muted bg-white dark:bg-dark-bg px-2 py-1 rounded">
                                 {key.key.substring(0, 20)}...
                               </code>
                               <button
                                 onClick={() => copyToClipboard(key.key)}
-                                className="text-mint-600 hover:text-mint-700"
+                                className="text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300"
                               >
                                 <Copy className="w-4 h-4" />
                               </button>
                             </div>
-                            <p className="text-xs text-mint-900/50 mt-1">
+                            <p className="text-xs text-mint-900/50 dark:text-dark-text-muted mt-1">
                               Created {new Date(key.created_at).toLocaleDateString()}
                             </p>
                           </div>
                           <Button
                             variant="secondary"
                             onClick={() => handleDeleteApiKey(key.id)}
-                            className="text-red-500 border-red-500 hover:bg-red-50"
+                            className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -274,8 +274,8 @@ export default function Settings() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-mint-900">Webhooks</h3>
-                      <p className="text-sm text-mint-900/70">Receive real-time notifications</p>
+                      <h3 className="text-lg font-semibold text-mint-900 dark:text-dark-text">Webhooks</h3>
+                      <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">Receive real-time notifications</p>
                     </div>
                     <Button onClick={() => setShowWebhookModal(true)}>
                       <Plus className="w-4 h-4" />
@@ -285,22 +285,22 @@ export default function Settings() {
 
                   <div className="space-y-3">
                     {webhooks.length === 0 ? (
-                      <div className="p-6 bg-mint-50 rounded-xl text-center">
-                        <p className="text-mint-900/70">No webhooks configured.</p>
+                      <div className="p-6 bg-mint-50 dark:bg-dark-hover rounded-xl text-center">
+                        <p className="text-mint-900/70 dark:text-dark-text-muted">No webhooks configured.</p>
                       </div>
                     ) : (
                       webhooks.map((webhook) => (
-                        <div key={webhook.id} className="p-4 bg-mint-50 rounded-xl">
+                        <div key={webhook.id} className="p-4 bg-mint-50 dark:bg-dark-hover rounded-xl">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
-                              <code className="text-sm text-mint-900 bg-white px-2 py-1 rounded">
+                              <code className="text-sm text-mint-900 dark:text-dark-text bg-white dark:bg-dark-bg px-2 py-1 rounded">
                                 {webhook.url}
                               </code>
                               <div className="flex items-center gap-2 mt-2">
                                 {webhook.events.map((event) => (
                                   <span
                                     key={event}
-                                    className="text-xs bg-mint-600 text-white px-2 py-1 rounded"
+                                    className="text-xs bg-mint-600 dark:bg-mint-500 text-white px-2 py-1 rounded"
                                   >
                                     {event}
                                   </span>
@@ -320,7 +320,7 @@ export default function Settings() {
                               <Button
                                 variant="secondary"
                                 onClick={() => handleDeleteWebhook(webhook.id)}
-                                className="text-red-500 border-red-500 hover:bg-red-50"
+                                className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -328,12 +328,12 @@ export default function Settings() {
                           </div>
                           {webhook.secret && (
                             <div className="flex items-center gap-2">
-                              <code className="text-xs text-mint-900/70 bg-white px-2 py-1 rounded">
+                              <code className="text-xs text-mint-900/70 dark:text-dark-text-muted bg-white dark:bg-dark-bg px-2 py-1 rounded">
                                 Secret: {webhook.secret.substring(0, 15)}...
                               </code>
                               <button
                                 onClick={() => copyToClipboard(webhook.secret!)}
-                                className="text-mint-600 hover:text-mint-700"
+                                className="text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300"
                               >
                                 <Copy className="w-3 h-3" />
                               </button>
@@ -344,9 +344,9 @@ export default function Settings() {
                     )}
                   </div>
 
-                  <div className="p-4 bg-mint-50 rounded-xl mt-4">
-                    <h4 className="font-semibold text-mint-900 mb-2">Available Events</h4>
-                    <ul className="space-y-2 text-sm text-mint-900/70">
+                  <div className="p-4 bg-mint-50 dark:bg-dark-hover rounded-xl mt-4">
+                    <h4 className="font-semibold text-mint-900 dark:text-dark-text mb-2">Available Events</h4>
+                    <ul className="space-y-2 text-sm text-mint-900/70 dark:text-dark-text-muted">
                       {availableEvents.map((event) => (
                         <li key={event.id}>• {event.id} - {event.label}</li>
                       ))}
@@ -357,35 +357,35 @@ export default function Settings() {
             )}
 
             {activeTab === 'danger' && (
-              <Card className="border-2 border-red-500/20">
+              <Card className="border-2 border-red-500/20 dark:border-red-500/30">
                 <div className="flex items-center gap-3 mb-6">
                   <AlertTriangle className="w-6 h-6 text-red-500" />
-                  <h2 className="text-2xl font-bold text-mint-900">Danger Zone</h2>
+                  <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text">Danger Zone</h2>
                 </div>
                 <div className="space-y-4">
-                  <div className="p-4 bg-red-50 border border-red-500/20 rounded-xl">
-                    <h3 className="font-semibold text-mint-900 mb-2">Clear All Data</h3>
-                    <p className="text-sm text-mint-900/70 mb-4">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-500/20 dark:border-red-500/30 rounded-xl">
+                    <h3 className="font-semibold text-mint-900 dark:text-dark-text mb-2">Clear All Data</h3>
+                    <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-4">
                       Remove all waitlist entries while keeping your project configuration
                     </p>
                     <Button
                       variant="secondary"
                       onClick={handleClearAllEntries}
-                      className="text-red-500 border-red-500 hover:bg-red-50"
+                      className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       Clear All Entries
                     </Button>
                   </div>
 
-                  <div className="p-4 bg-red-50 border border-red-500/20 rounded-xl">
-                    <h3 className="font-semibold text-mint-900 mb-2">Delete Project</h3>
-                    <p className="text-sm text-mint-900/70 mb-4">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-500/20 dark:border-red-500/30 rounded-xl">
+                    <h3 className="font-semibold text-mint-900 dark:text-dark-text mb-2">Delete Project</h3>
+                    <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-4">
                       Permanently delete this project and all associated data
                     </p>
                     <Button
                       variant="secondary"
                       onClick={() => setShowDeleteModal(true)}
-                      className="text-red-500 border-red-500 hover:bg-red-50"
+                      className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="w-4 h-4" />
                       Delete Project
@@ -407,9 +407,9 @@ export default function Settings() {
         title="Delete Project"
       >
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-xl">
+          <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl">
             <AlertTriangle className="w-6 h-6 text-red-500 flex-shrink-0" />
-            <p className="text-mint-900">
+            <p className="text-mint-900 dark:text-dark-text">
               This action cannot be undone. All your data will be permanently deleted.
             </p>
           </div>
@@ -489,12 +489,12 @@ export default function Settings() {
         title="API Key Created"
       >
         <div className="space-y-4">
-          <div className="p-4 bg-mint-50 rounded-xl">
-            <p className="text-sm text-mint-900 mb-2">
+          <div className="p-4 bg-mint-50 dark:bg-dark-hover rounded-xl">
+            <p className="text-sm text-mint-900 dark:text-dark-text mb-2">
               Make sure to copy your API key now. You won't be able to see it again!
             </p>
             <div className="flex items-center gap-2 mt-3">
-              <code className="flex-1 text-sm text-mint-900 bg-white px-3 py-2 rounded border border-mint-200">
+              <code className="flex-1 text-sm text-mint-900 dark:text-dark-text bg-white dark:bg-dark-bg px-3 py-2 rounded border border-mint-200 dark:border-dark-border">
                 {newGeneratedKey?.key}
               </code>
               <Button
@@ -531,7 +531,7 @@ export default function Settings() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
               Events
             </label>
             <div className="space-y-2">
@@ -547,11 +547,11 @@ export default function Settings() {
                         setSelectedEvents(selectedEvents.filter((id) => id !== event.id));
                       }
                     }}
-                    className="w-5 h-5 text-mint-600 border-mint-600/20 rounded focus:ring-mint-600"
+                    className="w-5 h-5 text-mint-600 border-mint-600/20 dark:border-dark-border rounded focus:ring-mint-600"
                   />
                   <div>
-                    <p className="font-medium text-mint-900">{event.id}</p>
-                    <p className="text-sm text-mint-900/70">{event.label}</p>
+                    <p className="font-medium text-mint-900 dark:text-dark-text">{event.id}</p>
+                    <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">{event.label}</p>
                   </div>
                 </label>
               ))}

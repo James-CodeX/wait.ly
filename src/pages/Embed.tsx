@@ -280,8 +280,8 @@ export default function Embed() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md text-center">
-          <h2 className="text-2xl font-bold text-mint-900 mb-4">No Project Selected</h2>
-          <p className="text-mint-900/70 mb-6">
+          <h2 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-4">No Project Selected</h2>
+          <p className="text-mint-900/70 dark:text-dark-text-muted mb-6">
             Please select a project from the Projects page to customize your embed widget.
           </p>
           <Button onClick={() => window.location.href = '/projects'}>
@@ -295,13 +295,13 @@ export default function Embed() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-mint-50 rounded animate-pulse" />
+        <div className="h-8 w-48 bg-mint-50 dark:bg-dark-card rounded animate-pulse" />
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
-            <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+            <div className="h-96 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
+            <div className="h-96 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
           </div>
-          <div className="h-96 bg-mint-50 rounded-2xl animate-pulse" />
+          <div className="h-96 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
         </div>
       </div>
     );
@@ -310,18 +310,18 @@ export default function Embed() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-mint-900 mb-2">Embed & Customize</h1>
-        <p className="text-mint-900/70">Design your waitlist form and embed it anywhere</p>
+        <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Embed & Customize</h1>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">Design your waitlist form and embed it anywhere</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           {/* Branding */}
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-4">Branding</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-4">Branding</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
+                <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
                   Logo
                 </label>
                 <div className="flex items-center gap-4">
@@ -342,19 +342,19 @@ export default function Embed() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
+                <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
                   Description
                 </label>
                 <textarea
                   value={config.description}
                   onChange={(e) => setConfig({ ...config, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 resize-none"
+                  className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
+                <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
                   Primary Color
                 </label>
                 <div className="flex gap-3 items-center">
@@ -373,7 +373,7 @@ export default function Embed() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
+                <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
                   Custom CSS
                 </label>
                 <textarea
@@ -381,7 +381,7 @@ export default function Embed() {
                   value={config.customCss || ''}
                   onChange={(e) => setConfig({ ...config, customCss: e.target.value })}
                   placeholder=".waitlist-form { /* Your custom styles */ }"
-                  className="w-full px-4 py-3 bg-mint-900 text-mint-100 border-2 border-mint-600/20 rounded-xl focus:outline-none focus:border-mint-600 resize-none font-mono text-sm"
+                  className="w-full px-4 py-3 bg-mint-900 dark:bg-dark-bg text-mint-100 dark:text-dark-text border-2 border-mint-600/20 dark:border-dark-border rounded-xl focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 resize-none font-mono text-sm"
                 />
               </div>
             </div>
@@ -389,11 +389,11 @@ export default function Embed() {
 
           {/* Form Configuration */}
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-4">Form Configuration</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-4">Form Configuration</h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-mint-900 mb-2">
+                <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
                   Widget Type
                 </label>
                 <div className="flex gap-2">
@@ -403,8 +403,8 @@ export default function Embed() {
                       onClick={() => setActiveTab(type)}
                       className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all ${
                         activeTab === type
-                          ? 'bg-mint-600 text-white shadow-mint'
-                          : 'bg-mint-50 text-mint-900 hover:bg-mint-100'
+                          ? 'bg-mint-600 dark:bg-mint-500 text-white shadow-mint'
+                          : 'bg-mint-50 dark:bg-dark-card text-mint-900 dark:text-dark-text hover:bg-mint-100 dark:hover:bg-dark-hover'
                       }`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -432,18 +432,18 @@ export default function Embed() {
                   onChange={(e) => setConfig({ ...config, showPosition: e.target.checked })}
                   className="w-5 h-5 text-mint-600 border-mint-600/20 rounded focus:ring-mint-600"
                 />
-                <span className="font-medium text-mint-900">Show waitlist position</span>
+                <span className="font-medium text-mint-900 dark:text-dark-text">Show waitlist position</span>
               </label>
             </div>
           </Card>
 
           {/* Custom Fields */}
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-4">Custom Fields</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-4">Custom Fields</h3>
             
             {/* Quick Select Presets */}
             <div className="mb-6">
-              <p className="text-sm font-medium text-mint-900 mb-3">Quick Add</p>
+              <p className="text-sm font-medium text-mint-900 dark:text-dark-text mb-3">Quick Add</p>
               <div className="grid grid-cols-2 gap-2">
                 {presetFields.map((preset) => (
                   <button
@@ -451,8 +451,8 @@ export default function Embed() {
                     onClick={() => handleTogglePresetField(preset.name)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       isFieldActive(preset.name)
-                        ? 'bg-mint-600 text-white shadow-mint'
-                        : 'bg-mint-50 text-mint-900 hover:bg-mint-100 border border-mint-600/20'
+                        ? 'bg-mint-600 dark:bg-mint-500 text-white shadow-mint'
+                        : 'bg-mint-50 dark:bg-dark-card text-mint-900 dark:text-dark-text hover:bg-mint-100 dark:hover:bg-dark-hover border border-mint-600/20 dark:border-dark-border'
                     }`}
                   >
                     {isFieldActive(preset.name) && <Check className="w-3 h-3 inline mr-1" />}
@@ -481,7 +481,7 @@ export default function Embed() {
                     value={newFieldName}
                     onChange={(e) => setNewFieldName(e.target.value)}
                     placeholder="Field name (e.g., Industry)"
-                    className="flex-1 px-3 py-2 bg-mint-50 border-2 border-mint-600/20 rounded-lg text-sm text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                    className="flex-1 px-3 py-2 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-lg text-sm text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
                     onKeyDown={(e) => e.key === 'Enter' && handleAddCustomField()}
                   />
                   <Button size="sm" onClick={handleAddCustomField}>
@@ -503,16 +503,16 @@ export default function Embed() {
 
             {/* Active Fields List */}
             {customFields.length > 0 && (
-              <div className="space-y-2 pt-4 border-t border-mint-600/10">
-                <p className="text-sm font-medium text-mint-900 mb-2">Active Fields ({customFields.length})</p>
+              <div className="space-y-2 pt-4 border-t border-mint-600/10 dark:border-dark-border">
+                <p className="text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Active Fields ({customFields.length})</p>
                 {customFields.map((field) => (
                   <div
                     key={field.id}
-                    className="flex items-center justify-between p-3 bg-mint-50 rounded-xl"
+                    className="flex items-center justify-between p-3 bg-mint-50 dark:bg-dark-hover rounded-xl"
                   >
                     <div>
-                      <p className="font-medium text-mint-900 text-sm">{field.name}</p>
-                      <p className="text-xs text-mint-900/70">
+                      <p className="font-medium text-mint-900 dark:text-dark-text text-sm">{field.name}</p>
+                      <p className="text-xs text-mint-900/70 dark:text-dark-text-muted">
                         {field.type} • {field.required ? 'Required' : 'Optional'}
                       </p>
                     </div>
@@ -538,12 +538,12 @@ export default function Embed() {
           {/* Embed Code */}
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-mint-900">Embed Code</h3>
+              <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text">Embed Code</h3>
               <div className="flex gap-2">
                 <select
                   value={selectedLang}
                   onChange={e => setSelectedLang(e.target.value)}
-                  className="px-2 py-1 rounded bg-mint-50 border border-mint-600/20 text-mint-900 text-sm"
+                  className="px-2 py-1 rounded bg-mint-50 dark:bg-dark-card border border-mint-600/20 dark:border-dark-border text-mint-900 dark:text-dark-text text-sm"
                 >
                   {Object.keys(embedSnippets).map(lang => (
                     <option key={lang} value={lang}>{lang}</option>
@@ -555,7 +555,7 @@ export default function Embed() {
                 </Button>
               </div>
             </div>
-            <div className="bg-mint-900 text-mint-100 p-4 rounded-xl overflow-x-auto">
+            <div className="bg-mint-900 dark:bg-dark-bg text-mint-100 dark:text-dark-text p-4 rounded-xl overflow-x-auto">
               <pre className="text-sm">
                 <code>{embedCode}</code>
               </pre>
@@ -565,30 +565,30 @@ export default function Embed() {
 
         <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-4">Live Preview</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-4">Live Preview</h3>
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white border-2 border-mint-600/20 rounded-2xl p-8"
+              className="bg-white dark:bg-dark-bg border-2 border-mint-600/20 dark:border-dark-border rounded-2xl p-8"
             >
               <div className="max-w-md mx-auto">
                 {config.showLogo && (
                   <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-mint-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                    <div className="w-16 h-16 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
                       W
                     </div>
                   </div>
                 )}
-                <h3 className="text-2xl font-bold text-mint-900 mb-3 text-center">
+                <h3 className="text-2xl font-bold text-mint-900 dark:text-dark-text mb-3 text-center">
                   {config.heading}
                 </h3>
-                <p className="text-mint-900/70 text-center mb-6">
+                <p className="text-mint-900/70 dark:text-dark-text-muted text-center mb-6">
                   {config.description}
                 </p>
                 <div className="space-y-3">
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40 dark:text-dark-text-muted">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
@@ -596,12 +596,12 @@ export default function Embed() {
                     <input
                       type="text"
                       placeholder="Name"
-                      className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                      className="w-full pl-12 pr-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
                       style={{ borderColor: `${config.primaryColor}33` }}
                     />
                   </div>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mint-900/40 dark:text-dark-text-muted">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
@@ -609,7 +609,7 @@ export default function Embed() {
                     <input
                       type="email"
                       placeholder="Email"
-                      className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                      className="w-full pl-12 pr-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
                       style={{ borderColor: `${config.primaryColor}33` }}
                     />
                   </div>
@@ -621,7 +621,7 @@ export default function Embed() {
                       <input
                         type="text"
                         placeholder={field.name}
-                        className="w-full pl-12 pr-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600"
+                        className="w-full pl-12 pr-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
                         style={{ borderColor: `${config.primaryColor}33` }}
                       />
                     </div>
@@ -634,16 +634,16 @@ export default function Embed() {
                   </button>
                 </div>
                 {config.showPosition && (
-                  <p className="text-sm text-center mt-4 text-mint-900/70">
+                  <p className="text-sm text-center mt-4 text-mint-900/70 dark:text-dark-text-muted">
                     You'll be #1,247 on the list
                   </p>
                 )}
               </div>
             </motion.div>
 
-            <div className="mt-4 p-4 bg-mint-50 rounded-xl">
-              <p className="text-sm text-mint-900/70">
-                <strong>Tip:</strong> All changes update in real-time. Customize everything to match your brand, then copy the embed code.
+            <div className="mt-4 p-4 bg-mint-50 dark:bg-dark-hover rounded-xl">
+              <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">
+                <strong className="dark:text-dark-text">Tip:</strong> All changes update in real-time. Customize everything to match your brand, then copy the embed code.
               </p>
             </div>
           </Card>

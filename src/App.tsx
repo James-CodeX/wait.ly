@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -18,8 +19,9 @@ import PublicWaitlist from './pages/PublicWaitlist';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth/login" element={<Login />} />
@@ -54,6 +56,7 @@ function App() {
           </Routes>
         </ToastProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

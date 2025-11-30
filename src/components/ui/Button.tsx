@@ -26,9 +26,9 @@ export default function Button({
   const baseStyles = `rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${sizeStyles[size]}`;
 
   const variants = {
-    primary: "bg-mint-600 text-white hover:bg-mint-700 hover:shadow-lg hover:shadow-mint-600/20",
-    secondary: "bg-white text-mint-900 border-2 border-mint-600 hover:bg-mint-50",
-    ghost: "text-mint-900 hover:bg-mint-50"
+    primary: "bg-mint-600 text-white hover:bg-mint-700 hover:shadow-lg hover:shadow-mint-600/20 dark:bg-mint-500 dark:hover:bg-mint-600",
+    secondary: "bg-white dark:bg-dark-card text-mint-900 dark:text-dark-text border-2 border-mint-600 dark:border-dark-border hover:bg-mint-50 dark:hover:bg-dark-hover",
+    ghost: "text-mint-900 dark:text-dark-text hover:bg-mint-50 dark:hover:bg-dark-hover"
   };
 
   return (

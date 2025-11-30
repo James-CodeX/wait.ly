@@ -72,7 +72,7 @@ export default function Analytics() {
   if (!projectId) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mint-900/70">No project selected</p>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">No project selected</p>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mint-900/70">Loading analytics...</p>
+        <p className="text-mint-900/70 dark:text-dark-text-muted">Loading analytics...</p>
       </div>
     );
   }
@@ -89,8 +89,8 @@ export default function Analytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-mint-900 mb-2">Analytics</h1>
-          <p className="text-mint-900/70">Track your waitlist performance</p>
+          <h1 className="text-3xl font-bold text-mint-900 dark:text-dark-text mb-2">Analytics</h1>
+          <p className="text-mint-900/70 dark:text-dark-text-muted">Track your waitlist performance</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -149,13 +149,13 @@ export default function Analytics() {
           >
             <Card hover>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center">
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-sm font-medium text-mint-600">{stat.change}</span>
+                <span className="text-sm font-medium text-mint-600 dark:text-mint-400">{stat.change}</span>
               </div>
-              <p className="text-sm text-mint-900/70 mb-1">{stat.label}</p>
-              <p className="text-3xl font-bold text-mint-900">{stat.value}</p>
+              <p className="text-sm text-mint-900/70 dark:text-dark-text-muted mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-mint-900 dark:text-dark-text">{stat.value}</p>
             </Card>
           </motion.div>
         ))}
@@ -168,7 +168,7 @@ export default function Analytics() {
           transition={{ delay: 0.4 }}
         >
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-6">Signups Over Time</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-6">Signups Over Time</h3>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={signupsOverTime}>
                 <defs>
@@ -177,16 +177,17 @@ export default function Analytics() {
                     <stop offset="95%" stopColor="#059669" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 78, 59, 0.1)" />
-                <XAxis dataKey="date" stroke="#064E3B" />
-                <YAxis stroke="#064E3B" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-mint-600/10 dark:stroke-dark-border" />
+                <XAxis dataKey="date" className="fill-mint-900 dark:fill-dark-text" stroke="currentColor" />
+                <YAxis className="fill-mint-900 dark:fill-dark-text" stroke="currentColor" />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ECFDF5',
-                    border: '1px solid rgba(6, 78, 59, 0.1)',
+                    backgroundColor: 'var(--tooltip-bg)',
+                    border: '1px solid var(--tooltip-border)',
                     borderRadius: '12px',
-                    color: '#064E3B',
+                    color: 'var(--tooltip-text)',
                   }}
+                  wrapperClassName="[--tooltip-bg:#ECFDF5] dark:[--tooltip-bg:#1E293B] [--tooltip-border:rgba(6,78,59,0.1)] dark:[--tooltip-border:#334155] [--tooltip-text:#064E3B] dark:[--tooltip-text:#F1F5F9]"
                 />
                 <Area
                   type="monotone"
@@ -207,19 +208,20 @@ export default function Analytics() {
           transition={{ delay: 0.5 }}
         >
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-6">Daily Signups</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-6">Daily Signups</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={dailySignups}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 78, 59, 0.1)" />
-                <XAxis dataKey="day" stroke="#064E3B" />
-                <YAxis stroke="#064E3B" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-mint-600/10 dark:stroke-dark-border" />
+                <XAxis dataKey="day" className="fill-mint-900 dark:fill-dark-text" stroke="currentColor" />
+                <YAxis className="fill-mint-900 dark:fill-dark-text" stroke="currentColor" />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ECFDF5',
-                    border: '1px solid rgba(6, 78, 59, 0.1)',
+                    backgroundColor: 'var(--tooltip-bg)',
+                    border: '1px solid var(--tooltip-border)',
                     borderRadius: '12px',
-                    color: '#064E3B',
+                    color: 'var(--tooltip-text)',
                   }}
+                  wrapperClassName="[--tooltip-bg:#ECFDF5] dark:[--tooltip-bg:#1E293B] [--tooltip-border:rgba(6,78,59,0.1)] dark:[--tooltip-border:#334155] [--tooltip-text:#064E3B] dark:[--tooltip-text:#F1F5F9]"
                 />
                 <Bar dataKey="count" fill="#059669" radius={[8, 8, 0, 0]} />
               </BarChart>
@@ -235,7 +237,7 @@ export default function Analytics() {
           transition={{ delay: 0.6 }}
         >
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-6">Traffic Sources</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-6">Traffic Sources</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -265,7 +267,7 @@ export default function Analytics() {
           className="lg:col-span-2"
         >
           <Card>
-            <h3 className="text-xl font-semibold text-mint-900 mb-6">Key Metrics</h3>
+            <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-6">Key Metrics</h3>
             <div className="space-y-6">
               {[
                 { label: 'Average Position Change', value: '+2.3', description: 'Per day' },
@@ -278,13 +280,13 @@ export default function Analytics() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-mint-50 rounded-xl"
+                  className="flex items-center justify-between p-4 bg-mint-50 dark:bg-dark-hover rounded-xl"
                 >
                   <div>
-                    <p className="font-medium text-mint-900">{metric.label}</p>
-                    <p className="text-sm text-mint-900/70">{metric.description}</p>
+                    <p className="font-medium text-mint-900 dark:text-dark-text">{metric.label}</p>
+                    <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">{metric.description}</p>
                   </div>
-                  <div className="text-2xl font-bold text-mint-600">{metric.value}</div>
+                  <div className="text-2xl font-bold text-mint-600 dark:text-mint-400">{metric.value}</div>
                 </motion.div>
               ))}
             </div>

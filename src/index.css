@@ -4,7 +4,15 @@
 
 @layer base {
   body {
-    @apply bg-white text-mint-900;
+    @apply bg-white dark:bg-dark-bg text-mint-900 dark:text-dark-text transition-colors duration-200;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-mint-900 dark:text-dark-text;
+  }
+  
+  p {
+    @apply text-mint-900 dark:text-dark-text;
   }
 }
 
@@ -15,11 +23,43 @@
     border: 1px solid rgba(6, 78, 59, 0.1);
   }
 
+  .dark .glass-mint {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+  }
+
   .shadow-mint {
     box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.1), 0 2px 4px -1px rgba(5, 150, 105, 0.06);
   }
 
+  .dark .shadow-mint {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
   .shadow-mint-lg {
     box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.1), 0 4px 6px -2px rgba(5, 150, 105, 0.05);
+  }
+
+  .dark .shadow-mint-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Universal card background */
+  .card-bg {
+    @apply bg-mint-50 dark:bg-dark-card;
+  }
+  
+  /* Universal text colors */
+  .text-primary {
+    @apply text-mint-900 dark:text-dark-text;
+  }
+  
+  .text-secondary {
+    @apply text-mint-900/70 dark:text-dark-text-muted;
+  }
+  
+  /* Universal border */
+  .border-default {
+    @apply border-mint-600/20 dark:border-dark-border;
   }
 }
