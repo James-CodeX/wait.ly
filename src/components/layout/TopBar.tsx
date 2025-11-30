@@ -1,12 +1,44 @@
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ThemeToggle from '../ui/ThemeToggle';
+import { useState, useEffect } from 'react';
 
 export default function TopBar() {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(isCollapsed));
+    // Dispatch custom event to notify Sidebar of the change
+    window.dispatchEvent(new CustomEvent('sidebarToggle', { detail: { isCollapsed } }));
+  }, [isCollapsed]);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <header className="bg-white dark:bg-dark-card border-b border-mint-600/10 dark:border-dark-border px-6 py-4 flex items-center justify-between">
-      <div className="flex-1 max-w-xl">
-        <div className="relative">
+    <header className="h-[73px] bg-white dark:bg-dark-card border-b border-mint-600/10 dark:border-dark-border px-6 flex items-center justify-between">
+      <div className="flex items-center gap-3 flex-1 max-w-xl">
+        {/* Collapse Toggle Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleCollapse}
+          className="p-2 hover:bg-mint-50 dark:hover:bg-dark-hover rounded-lg transition-colors text-mint-600 dark:text-mint-400 flex-shrink-0"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? (
+            <PanelLeftOpen className="w-5 h-5" />
+          ) : (
+            <PanelLeftClose className="w-5 h-5" />
+          )}
+        </motion.button>
+
+        {/* Search Bar */}
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mint-600 dark:text-mint-400" />
           <input
             type="text"

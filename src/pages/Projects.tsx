@@ -74,12 +74,12 @@ export default function Projects() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 to-white p-6">
+      <div className="min-h-screen bg-gradient-to-br from-mint-50 to-white dark:from-dark-bg dark:to-dark-card p-6">
         <div className="max-w-6xl mx-auto">
-          <div className="h-12 w-64 bg-mint-50 rounded animate-pulse mb-8" />
+          <div className="h-12 w-64 bg-mint-50 dark:bg-dark-card rounded animate-pulse mb-8" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 bg-mint-50 rounded-2xl animate-pulse" />
+              <div key={i} className="h-48 bg-mint-50 dark:bg-dark-card rounded-2xl animate-pulse" />
             ))}
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function Projects() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-mint-50 to-white dark:from-dark-bg dark:to-dark-card p-6">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -96,8 +96,8 @@ export default function Projects() {
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h1 className="text-4xl font-bold text-mint-900 mb-2">Your Waitlists</h1>
-            <p className="text-mint-900/70">Select a project to manage or create a new one</p>
+            <h1 className="text-4xl font-bold text-mint-900 dark:text-dark-text mb-2">Your Waitlists</h1>
+            <p className="text-mint-900/70 dark:text-dark-text-muted">Select a project to manage or create a new one</p>
           </div>
           <Button onClick={() => setCreateModal(true)}>
             <Plus className="w-5 h-5" />
@@ -119,21 +119,21 @@ export default function Projects() {
                 onClick={() => handleSelectProject(project.id)}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-mint-600 dark:bg-mint-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Users className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-xs text-mint-900/50">
+                  <span className="text-xs text-mint-900/50 dark:text-dark-text-muted">
                     {new Date(project.created_at).toLocaleDateString()}
                   </span>
                 </div>
 
-                <h3 className="text-xl font-semibold text-mint-900 mb-2">{project.name}</h3>
-                <p className="text-mint-900/70 text-sm mb-4 line-clamp-2">{project.description}</p>
+                <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-2">{project.name}</h3>
+                <p className="text-mint-900/70 dark:text-dark-text-muted text-sm mb-4 line-clamp-2">{project.description}</p>
 
-                <div className="flex items-center gap-4 pt-4 border-t border-mint-600/10">
+                <div className="flex items-center gap-4 pt-4 border-t border-mint-600/10 dark:border-dark-border">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-mint-600" />
-                    <span className="text-sm font-medium text-mint-900">
+                    <TrendingUp className="w-4 h-4 text-mint-600 dark:text-mint-400" />
+                    <span className="text-sm font-medium text-mint-900 dark:text-dark-text">
                       {project.total_signups} signups
                     </span>
                   </div>
@@ -150,9 +150,9 @@ export default function Projects() {
               className="col-span-full"
             >
               <Card className="text-center py-12">
-                <Users className="w-16 h-16 text-mint-600 mx-auto mb-4" />
-                <h3 className="text-2xl font-semibold text-mint-900 mb-2">No projects yet</h3>
-                <p className="text-mint-900/70 mb-6">
+                <Users className="w-16 h-16 text-mint-600 dark:text-mint-400 mx-auto mb-4" />
+                <h3 className="text-2xl font-semibold text-mint-900 dark:text-dark-text mb-2">No projects yet</h3>
+                <p className="text-mint-900/70 dark:text-dark-text-muted mb-6">
                   Create your first waitlist project to get started
                 </p>
                 <Button onClick={() => setCreateModal(true)}>
@@ -173,7 +173,7 @@ export default function Projects() {
       >
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
               Project Name
             </label>
             <input
@@ -181,16 +181,16 @@ export default function Projects() {
               placeholder="e.g., My Awesome Product"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full px-4 py-3 bg-mint-50 border-2 ${
-                errors.name ? 'border-red-500' : 'border-mint-600/20'
-              } rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 focus:ring-4 focus:ring-mint-600/10 transition-all`}
+              className={`w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 ${
+                errors.name ? 'border-red-500' : 'border-mint-600/20 dark:border-dark-border'
+              } rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 focus:ring-4 focus:ring-mint-600/10 dark:focus:ring-mint-500/20 transition-all`}
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1 ml-1">{errors.name}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-mint-900 mb-2">
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">
               Description (optional)
             </label>
             <textarea
@@ -198,7 +198,7 @@ export default function Projects() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 bg-mint-50 border-2 border-mint-600/20 rounded-xl text-mint-900 placeholder-mint-900/40 focus:outline-none focus:border-mint-600 focus:ring-4 focus:ring-mint-600/10 transition-all resize-none"
+              className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text placeholder-mint-900/40 dark:placeholder-dark-text-muted focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 focus:ring-4 focus:ring-mint-600/10 dark:focus:ring-mint-500/20 transition-all resize-none"
             />
           </div>
 
