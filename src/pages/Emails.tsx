@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
+import EmailEditor from '../components/EmailEditor';
 import { emailService, EmailCampaign, EmailTemplate } from '../services/email';
 import { useToast } from '../components/ui/Toast';
 
@@ -385,41 +386,19 @@ export default function Emails() {
         isOpen={showEditorModal}
         onClose={() => setShowEditorModal(false)}
         title="Email Editor"
-        size="lg"
+        size="xl"
       >
         {selectedCampaign && (
-          <div className="space-y-4">
-            <Input 
-              label="Subject" 
-              value={selectedCampaign.subject}
-              onChange={(e) => setSelectedCampaign({ ...selectedCampaign, subject: e.target.value })}
+          <div className="space-y-6">
+            <EmailEditor
+              subject={selectedCampaign.subject}
+              body={selectedCampaign.body}
+              onSubjectChange={(subject) => setSelectedCampaign({ ...selectedCampaign, subject })}
+              onBodyChange={(body) => setSelectedCampaign({ ...selectedCampaign, body })}
               disabled={selectedCampaign.status === 'sent'}
             />
 
-            <div>
-              <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Message</label>
-              <textarea
-                rows={10}
-                value={selectedCampaign.body}
-                onChange={(e) => setSelectedCampaign({ ...selectedCampaign, body: e.target.value })}
-                disabled={selectedCampaign.status === 'sent'}
-                className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500 resize-none disabled:opacity-50"
-              />
-            </div>
-
-            <div className="bg-mint-50 dark:bg-dark-hover p-4 rounded-xl">
-              <p className="text-sm text-mint-900/70 dark:text-dark-text-muted">
-                <strong className="dark:text-dark-text">Available variables:</strong> {'{'}
-                {'{'}name{'}'}
-                {'}'}, {'{'}
-                {'{'}position{'}'}
-                {'}'}, {'{'}
-                {'{'}waitlist_name{'}'}
-                {'}'}
-              </p>
-            </div>
-
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-4 border-t border-mint-600/10 dark:border-dark-border">
               {selectedCampaign.status !== 'sent' && (
                 <>
                   <Button variant="secondary" onClick={handleSendTest} className="flex-1">
