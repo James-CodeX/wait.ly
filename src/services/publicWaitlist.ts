@@ -8,13 +8,13 @@ async function triggerWelcomeEmail(entryId: string): Promise<void> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
     },
     body: JSON.stringify({ entryId }),
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
     throw new Error(error.error || 'Failed to trigger welcome email');
   }
 }
@@ -110,7 +110,7 @@ export const publicWaitlistService = {
         .from('waitlist_entries')
         .select('id')
         .eq('referral_code', referralCodeUnique)
-        .single();
+        .maybeSingle();
 
       if (!data) {
         codeExists = false;
