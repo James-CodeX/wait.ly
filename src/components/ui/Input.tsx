@@ -15,6 +15,8 @@ export default function Input({
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const hasValue = props.value !== undefined && props.value !== '';
+  const shouldLabelFloat = isFocused || hasValue || !!props.placeholder;
 
   return (
     <div className="w-full">
@@ -34,11 +36,12 @@ export default function Input({
           <motion.label
             initial={false}
             animate={{
-              top: isFocused || props.value ? '-8px' : '50%',
-              fontSize: isFocused || props.value ? '0.75rem' : '1rem',
-              backgroundColor: isFocused || props.value ? 'white' : 'transparent',
+              top: shouldLabelFloat ? '-8px' : '50%',
+              fontSize: shouldLabelFloat ? '0.75rem' : '1rem',
             }}
-            className={`absolute ${icon ? 'left-10' : 'left-4'} px-2 pointer-events-none text-mint-900/70 dark:text-dark-text-muted transition-all duration-200 -translate-y-1/2`}
+            className={`absolute ${icon ? 'left-10' : 'left-4'} px-2 pointer-events-none text-mint-900/70 dark:text-dark-text-muted transition-all duration-200 -translate-y-1/2 ${
+              shouldLabelFloat ? 'bg-mint-50 dark:bg-dark-card' : 'bg-transparent'
+            }`}
           >
             {label}
           </motion.label>
