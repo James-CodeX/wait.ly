@@ -138,9 +138,25 @@ export default function PublicWaitlist() {
   if (!projectInfo) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <Card className="text-center">
+        <Card className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
           <h2 className="text-2xl font-bold text-mint-900 dark:text-gray-100 mb-2">Waitlist Not Found</h2>
-          <p className="text-mint-900/70 dark:text-gray-400">This waitlist does not exist or has been removed.</p>
+          <p className="text-mint-900/70 dark:text-gray-400 mb-4">
+            This waitlist does not exist or has been removed.
+          </p>
+          {waitlistId && (
+            <div className="bg-mint-50 dark:bg-gray-800 rounded-lg p-4 text-left">
+              <p className="text-sm text-mint-900/70 dark:text-gray-400 mb-2">
+                <strong className="text-mint-900 dark:text-gray-100">Project ID:</strong>
+              </p>
+              <code className="text-xs text-mint-600 dark:text-mint-400 break-all">{waitlistId}</code>
+            </div>
+          )}
+          <p className="text-sm text-mint-900/70 dark:text-gray-400 mt-4">
+            If you're the owner, make sure you've created a project and are using the correct embed URL from your dashboard.
+          </p>
         </Card>
       </div>
     );
