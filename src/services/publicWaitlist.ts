@@ -45,7 +45,7 @@ export const publicWaitlistService = {
       .from('projects')
       .select('id, name, description, total_signups')
       .eq('id', projectId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching project:', error);
@@ -67,7 +67,7 @@ export const publicWaitlistService = {
       .select('id')
       .eq('project_id', projectId)
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       throw new Error('Email already registered');
@@ -81,7 +81,7 @@ export const publicWaitlistService = {
         .select('id')
         .eq('project_id', projectId)
         .eq('referral_code', referralCode)
-        .single();
+        .maybeSingle();
 
       if (referrer) {
         referredBy = referrer.id;
@@ -153,7 +153,7 @@ export const publicWaitlistService = {
       .from('embed_configurations')
       .select('*')
       .eq('project_id', projectId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching embed config:', error);
