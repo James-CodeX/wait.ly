@@ -20,36 +20,25 @@ export default function Dashboard() {
   const projectId = searchParams.get('project') || localStorage.getItem('selectedProjectId') || '';
   const embedUrl = `${window.location.origin}/public/${projectId}`;
   
-  const embedCode = `<!-- Add this to your website -->
+  const embedCode = `<!-- Add this iframe to your website -->
 <iframe 
   src="${embedUrl}"
   width="100%" 
   height="600"
   frameborder="0"
+  style="border: none; border-radius: 12px;"
 ></iframe>`;
 
-  const reactCode = `import { useState } from 'react';
-
-function WaitlistForm() {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch('YOUR_API_ENDPOINT', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email })
-    });
-    // Handle response
-  };
-
+  const reactCode = `// React/Next.js Component Example
+function WaitlistEmbed() {
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
-      <button type="submit">Join Waitlist</button>
-    </form>
+    <iframe 
+      src="${embedUrl}"
+      width="100%" 
+      height="600"
+      frameBorder="0"
+      style={{ border: 'none', borderRadius: '12px' }}
+    />
   );
 }`;
 

@@ -105,53 +105,67 @@ export default function Embed() {
   };
 
 
+    const publicUrl = `${window.location.origin}/public/${projectId}`;
+    
     const embedSnippets: Record<string, string> = {
-      HTML: `<script src="https://waitly.app/embed.js"></script>
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`,
-      React: `import Script from 'next/script';
-
-  <Script src="https://waitly.app/embed.js" />
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`,
-      Vue: `<script src="https://waitly.app/embed.js"></script>
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`,
-      Angular: `<script src="https://waitly.app/embed.js"></script>
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`,
-      Svelte: `<script src="https://waitly.app/embed.js"></script>
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`,
-      NextJS: `import Script from 'next/script';
-
-  <Script src="https://waitly.app/embed.js" />
-  <div data-waitly-widget="${activeTab}"
-    data-project="${projectId}"
-    data-heading="${config.heading}"
-    data-button="${config.buttonText}"
-    data-color="${config.primaryColor}">
-  </div>`
+      HTML: `<!-- Embed Wait.ly Waitlist -->
+<iframe 
+  src="${publicUrl}"
+  width="100%" 
+  height="600"
+  frameborder="0"
+  style="border: none; border-radius: 12px;"
+></iframe>`,
+      React: `// React Component
+function WaitlistEmbed() {
+  return (
+    <iframe 
+      src="${publicUrl}"
+      width="100%" 
+      height="600"
+      frameBorder="0"
+      style={{ border: 'none', borderRadius: '12px' }}
+    />
+  );
+}`,
+      Vue: `<!-- Vue Template -->
+<template>
+  <iframe 
+    src="${publicUrl}"
+    width="100%" 
+    height="600"
+    frameborder="0"
+    style="border: none; border-radius: 12px;"
+  />
+</template>`,
+      Angular: `<!-- Angular Template -->
+<iframe 
+  src="${publicUrl}"
+  width="100%" 
+  height="600"
+  frameborder="0"
+  style="border: none; border-radius: 12px;"
+></iframe>`,
+      Svelte: `<!-- Svelte Component -->
+<iframe 
+  src="${publicUrl}"
+  width="100%" 
+  height="600"
+  frameborder="0"
+  style="border: none; border-radius: 12px;"
+/>`,
+      NextJS: `// Next.js Component
+export default function WaitlistEmbed() {
+  return (
+    <iframe 
+      src="${publicUrl}"
+      width="100%" 
+      height="600"
+      frameBorder="0"
+      style={{ border: 'none', borderRadius: '12px' }}
+    />
+  );
+}`
     };
 
     const embedCode = embedSnippets[selectedLang];
