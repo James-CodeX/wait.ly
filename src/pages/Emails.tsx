@@ -27,6 +27,8 @@ export default function Emails() {
     body: '',
     templateId: '',
     recipientFilter: 'all',
+    triggerType: 'manual' as 'manual' | 'automatic',
+    triggerEvent: 'on_join',
   });
   const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState(false);
@@ -81,12 +83,15 @@ export default function Emails() {
         subject: formData.subject,
         body: body || 'Email content here...',
         template_id: formData.templateId || undefined,
+        trigger_type: formData.triggerType,
+        trigger_event: formData.triggerType === 'automatic' ? formData.triggerEvent : null,
+        is_active: formData.triggerType === 'automatic',
         recipient_filter: { type: formData.recipientFilter },
       });
 
       setCampaigns([newCampaign, ...campaigns]);
       setShowCreateModal(false);
-      setFormData({ name: '', subject: '', body: '', templateId: '', recipientFilter: 'all' });
+      setFormData({ name: '', subject: '', body: '', templateId: '', recipientFilter: 'all', triggerType: 'manual', triggerEvent: 'on_join' });
       showToast('Campaign created successfully!', 'success');
     } catch (error) {
       console.error('Failed to create campaign:', error);
@@ -271,7 +276,22 @@ export default function Emails() {
                 </div>
 
                 <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-2">{campaign.name}</h3>
-                <p className="text-mint-900/70 dark:text-dark-text-muted mb-4">{campaign.subject}</p>
+                <p className="text-mint-900/70 dark:text-dark-text-muted mb-2">{campaign.subject}</p>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    campaign.trigger_type === 'automatic'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                  }`}>
+                    {campaign.trigger_type === 'automatic' ? '⚡ Automatic' : '✋ Manual'}
+                  </span>
+                  {campaign.trigger_type === 'automatic' && campaign.is_active && (
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                      Active
+                    </span>
+                  )}
+                </div>
 
                 {campaign.status === 'sent' && (
                   <div className="grid grid-cols-3 gap-4 mb-4">
@@ -342,7 +362,14 @@ export default function Emails() {
                 transition={{ delay: 0.3 + index * 0.1 }}
               >
                 <Card hover>
-                  <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text mb-2">{template.name}</h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-mint-900 dark:text-dark-text">{template.name}</h3>
+                    {template.is_system && (
+                      <span className="px-2 py-1 rounded text-xs font-medium bg-mint-100 dark:bg-mint-900/30 text-mint-700 dark:text-mint-300">
+                        System
+                      </span>
+                    )}
+                  </div>
                   <p className="text-mint-900/70 dark:text-dark-text-muted mb-4">{template.subject}</p>
                   <div className="bg-mint-50 dark:bg-dark-hover p-4 rounded-xl mb-4">
                     <pre className="text-sm text-mint-900 dark:text-dark-text whitespace-pre-wrap line-clamp-4">{template.body}</pre>
@@ -351,7 +378,14 @@ export default function Emails() {
                     variant="secondary"
                     className="w-full"
                     onClick={() => {
-                      setFormData({ ...formData, templateId: template.id, subject: template.subject, body: template.body });
+                      setFormData({
+                        ...formData,
+                        templateId: template.id,
+                        subject: template.subject,
+                        body: template.body,
+                        triggerType: template.type === 'welcome' ? 'automatic' : 'manual',
+                        triggerEvent: template.type === 'welcome' ? 'on_join' : 'on_join',
+                      });
                       setShowCreateModal(true);
                     }}
                   >
@@ -412,8 +446,40 @@ export default function Emails() {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Campaign Type</label>
+            <select
+              className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
+              value={formData.triggerType}
+              onChange={(e) => setFormData({ ...formData, triggerType: e.target.value as 'manual' | 'automatic' })}
+            >
+              <option value="manual">Manual - Send when ready</option>
+              <option value="automatic">Automatic - Send on trigger</option>
+            </select>
+            {formData.triggerType === 'automatic' && (
+              <p className="text-xs text-mint-900/70 dark:text-dark-text-muted mt-2">
+                Automatic campaigns will be sent immediately when the trigger event occurs
+              </p>
+            )}
+          </div>
+
+          {formData.triggerType === 'automatic' && (
+            <div>
+              <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Trigger Event</label>
+              <select
+                className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
+                value={formData.triggerEvent}
+                onChange={(e) => setFormData({ ...formData, triggerEvent: e.target.value })}
+              >
+                <option value="on_join">When user joins waitlist</option>
+                <option value="on_position_change">When position changes</option>
+                <option value="on_milestone">When reaching milestone position</option>
+              </select>
+            </div>
+          )}
+
+          <div>
             <label className="block text-sm font-medium text-mint-900 dark:text-dark-text mb-2">Recipients</label>
-            <select 
+            <select
               className="w-full px-4 py-3 bg-mint-50 dark:bg-dark-card border-2 border-mint-600/20 dark:border-dark-border rounded-xl text-mint-900 dark:text-dark-text focus:outline-none focus:border-mint-600 dark:focus:border-mint-500"
               value={formData.recipientFilter}
               onChange={(e) => setFormData({ ...formData, recipientFilter: e.target.value })}

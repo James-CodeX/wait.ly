@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 
 export interface EmailTemplate {
   id: string;
-  project_id: string;
+  project_id: string | null;
   name: string;
   subject: string;
   body: string;
@@ -20,6 +20,9 @@ export interface EmailCampaign {
   subject: string;
   body: string;
   status: string;
+  trigger_type: 'manual' | 'automatic';
+  trigger_event: string | null;
+  is_active: boolean;
   recipient_filter: any | null;
   total_sent: number;
   total_opened: number;
@@ -39,7 +42,8 @@ export const emailService = {
     const { data, error } = await supabase
       .from('email_templates')
       .select('*')
-      .eq('project_id', projectId)
+      .or(`project_id.eq.${projectId},is_system.eq.true`)
+      .order('is_system', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -134,6 +138,9 @@ export const emailService = {
       subject: string;
       body: string;
       template_id?: string;
+      trigger_type?: 'manual' | 'automatic';
+      trigger_event?: string;
+      is_active?: boolean;
       recipient_filter?: any;
       scheduled_at?: string;
     }
@@ -150,6 +157,9 @@ export const emailService = {
           subject: campaign.subject,
           body: campaign.body,
           template_id: campaign.template_id || null,
+          trigger_type: campaign.trigger_type || 'manual',
+          trigger_event: campaign.trigger_event || null,
+          is_active: campaign.is_active || false,
           recipient_filter: campaign.recipient_filter || null,
           scheduled_at: campaign.scheduled_at || null,
           status: 'draft',
@@ -169,6 +179,9 @@ export const emailService = {
       subject?: string;
       body?: string;
       status?: string;
+      trigger_type?: 'manual' | 'automatic';
+      trigger_event?: string;
+      is_active?: boolean;
       recipient_filter?: any;
       scheduled_at?: string;
     }
