@@ -41,6 +41,11 @@ export default function EmbedWaitlistForm({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Debug log
+  console.log('EmbedConfig:', embedConfig);
+  console.log('Show Position:', embedConfig?.show_position);
+  console.log('Total Signups:', projectInfo.total_signups);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -91,11 +96,11 @@ export default function EmbedWaitlistForm({
   const primaryColor = embedConfig?.primary_color || '#059669';
 
   return (
-    <div className="bg-white dark:bg-dark-bg border-2 border-mint-600/20 dark:border-dark-border rounded-2xl p-8">
-      {embedConfig?.custom_css && (
-        <style dangerouslySetInnerHTML={{ __html: embedConfig.custom_css }} />
-      )}
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-2 border-mint-600/20 dark:border-dark-border rounded-2xl p-8 w-full max-w-md mx-auto shadow-2xl">
+        {embedConfig?.custom_css && (
+          <style dangerouslySetInnerHTML={{ __html: embedConfig.custom_css }} />
+        )}
         {embedConfig?.show_logo && (
           <div className="flex justify-center mb-4">
             {embedConfig?.logo_url ? (
@@ -186,13 +191,13 @@ export default function EmbedWaitlistForm({
           >
             {loading ? 'Joining...' : embedConfig?.button_text || 'Join Waitlist'}
           </button>
-
-          {embedConfig?.show_position && (
-            <p className="text-sm text-center mt-4 text-gray-600 dark:text-dark-text-muted">
-              You'll be #{(projectInfo.total_signups + 1).toLocaleString()} on the list
-            </p>
-          )}
         </form>
+
+        {(embedConfig?.show_position ?? true) && (
+          <p className="text-sm text-center mt-4 text-gray-600 dark:text-dark-text-muted">
+            You'll be #{(projectInfo.total_signups + 1).toLocaleString()} on the list
+          </p>
+        )}
       </div>
     </div>
   );
