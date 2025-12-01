@@ -24,7 +24,7 @@ export default function Dashboard() {
 <iframe 
   src="${embedUrl}"
   width="100%" 
-  height="500"
+  height="580"
   frameborder="0"
   style="border: none; border-radius: 12px;"
 ></iframe>`;
@@ -35,7 +35,7 @@ function WaitlistEmbed() {
     <iframe 
       src="${embedUrl}"
       width="100%" 
-      height="500"
+      height="580"
       frameBorder="0"
       style={{ border: 'none', borderRadius: '12px' }}
     />

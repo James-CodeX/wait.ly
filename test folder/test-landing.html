@@ -173,13 +173,6 @@
             color: rgba(255, 255, 255, 0.9);
         }
 
-        .embed-container {
-            background: transparent;
-            border-radius: 0;
-            padding: 0;
-            box-shadow: none;
-        }
-
         /* Project ID Input */
         .project-id-input {
             max-width: 600px;
@@ -212,6 +205,7 @@
             font-size: 14px;
             background: white;
             color: #333;
+            font-family: monospace;
         }
 
         .project-id-group input:focus {
@@ -234,10 +228,8 @@
             transform: translateY(-2px);
         }
 
-        .current-id {
-            margin-top: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 12px;
+        #embedContainer {
+            margin-top: 30px;
         }
 
         /* Footer */
@@ -329,17 +321,21 @@
                 <h2>Join Our Exclusive Waitlist</h2>
                 <p>Be among the first to experience NexusAI. Limited spots available for our beta launch!</p>
                 
-                <div class="embed-container">
-                    <!-- PASTE YOUR WAIT.LY EMBED CODE HERE -->
-                    <iframe 
-                        src="https://waitly-001.netlify.app/public/0b2cc1c0-037a-45ad-be9a-f1ca00efef05"
-                        width="100%" 
-                        height="500"
-                        frameborder="0"
-                        style="border: none; border-radius: 12px;"
-                    ></iframe>
-                    <!-- END EMBED CODE -->
+                <!-- Project ID Input -->
+                <div class="project-id-input">
+                    <label for="embedCode">Paste Your Wait.ly Embed Code:</label>
+                    <div class="project-id-group">
+                        <input 
+                            type="text" 
+                            id="embedCode" 
+                            placeholder="Paste the complete iframe embed code here"
+                        />
+                        <button onclick="updateEmbed()">Embed</button>
+                    </div>
                 </div>
+
+                <!-- EMBED WILL APPEAR HERE -->
+                <div id="embedContainer"></div>
             </div>
         </div>
     </section>
@@ -350,5 +346,31 @@
             <p>&copy; 2025 NexusAI. All rights reserved. | Building the future of AI.</p>
         </div>
     </footer>
+
+    <script>
+        // Update embed code
+        function updateEmbed() {
+            const embedCodeInput = document.getElementById('embedCode');
+            const embedCode = embedCodeInput.value.trim();
+            
+            if (!embedCode) {
+                alert('Please paste your embed code');
+                return;
+            }
+            
+            // Insert the embed code directly
+            const container = document.getElementById('embedContainer');
+            container.innerHTML = embedCode;
+        }
+
+        // Allow Enter key to update
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('embedCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    updateEmbed();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
