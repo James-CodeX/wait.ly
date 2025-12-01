@@ -70,6 +70,24 @@ export const projectsService = {
       throw error;
     }
 
+    // Create default embed configuration
+    await supabase
+      .from('embed_configurations')
+      .insert({
+        project_id: data.id,
+        heading: 'Join Our Waitlist',
+        description: 'Be the first to know when we launch. Join our exclusive waitlist!',
+        button_text: 'Join Waitlist',
+        success_message: 'Successfully joined the waitlist!',
+        primary_color: '#059669',
+        secondary_color: '#ECFDF5',
+        show_position: true,
+        show_logo: true,
+        logo_url: null,
+        custom_css: null,
+        widget_type: 'inline',
+      });
+
     return data;
   },
 
