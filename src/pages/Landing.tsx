@@ -385,7 +385,7 @@ export default function Landing() {
           
           <div className="pt-8 border-t border-mint-600/10 dark:border-dark-border text-center">
             <p className="text-sm text-mint-900/50 dark:text-dark-text-muted">
-              © 2024 Wait.ly. All rights reserved.
+              © 2025 Wait.ly. All rights reserved.
             </p>
           </div>
         </div>

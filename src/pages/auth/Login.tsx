@@ -52,7 +52,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-dark-bg dark:to-dark-card">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -60,13 +60,13 @@ export default function Login() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-mint-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-mint-600 to-mint-500 rounded-xl flex items-center justify-center shadow-lg shadow-mint-600/20">
               <Users className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-mint-900">Wait.ly</h1>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-mint-600 to-mint-500 bg-clip-text text-transparent">Wait.ly</h1>
           </Link>
-          <h2 className="text-2xl font-semibold text-mint-900 mb-2">Welcome Back</h2>
-          <p className="text-mint-900/70">Sign in to your account</p>
+          <h2 className="text-2xl font-semibold text-mint-900 dark:text-dark-text mb-2">Welcome Back</h2>
+          <p className="text-mint-900/70 dark:text-dark-text-muted">Sign in to your account</p>
         </div>
 
         <Card glass>
@@ -95,11 +95,11 @@ export default function Login() {
                   type="checkbox"
                   className="w-4 h-4 text-mint-600 border-mint-600/20 rounded focus:ring-mint-600"
                 />
-                <span className="text-sm text-mint-900/70">Remember me</span>
+                <span className="text-sm text-mint-900/70 dark:text-dark-text-muted">Remember me</span>
               </label>
               <Link
                 to="/auth/forgot-password"
-                className="text-sm text-mint-600 hover:text-mint-700 font-medium"
+                className="text-sm text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300 font-medium"
               >
                 Forgot password?
               </Link>
@@ -109,9 +109,9 @@ export default function Login() {
               Sign In
             </Button>
 
-            <p className="text-center text-mint-900/70">
+            <p className="text-center text-mint-900/70 dark:text-dark-text-muted">
               Don't have an account?{' '}
-              <Link to="/auth/signup" className="text-mint-600 hover:text-mint-700 font-medium">
+              <Link to="/auth/signup" className="text-mint-600 dark:text-mint-400 hover:text-mint-700 dark:hover:text-mint-300 font-medium">
                 Sign up
               </Link>
             </p>
