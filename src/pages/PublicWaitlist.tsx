@@ -44,8 +44,11 @@ export default function PublicWaitlist() {
   const [entry, setEntry] = useState<WaitlistEntry | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pageLoading, setPageLoading] = useState(true);
+  const [isEmbedded, setIsEmbedded] = useState(false);
 
   useEffect(() => {
+    // Detect if we're in an iframe
+    setIsEmbedded(window.self !== window.top);
     loadProjectInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [waitlistId]);
@@ -252,55 +255,81 @@ export default function PublicWaitlist() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className={isEmbedded ? "p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800" : "min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-mint-50 to-white dark:from-gray-900 dark:to-gray-800"}>
       {embedConfig?.custom_css && (
         <style dangerouslySetInnerHTML={{ __html: embedConfig.custom_css }} />
       )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl"
+        className={isEmbedded ? "w-full max-w-md mx-auto" : "w-full max-w-2xl"}
       >
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring' }}
-            className="inline-flex items-center gap-3 mb-6"
-          >
-            {embedConfig?.show_logo && embedConfig?.logo_url ? (
-              <img 
-                src={embedConfig.logo_url} 
-                alt={projectInfo.name}
-                className="w-16 h-16 rounded-2xl object-cover"
-              />
-            ) : (
-              <div 
-                className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
-              >
-                <Users className="w-10 h-10 text-white" />
-              </div>
-            )}
-            <h1 className="text-4xl font-bold text-mint-900 dark:text-gray-100">{projectInfo.name}</h1>
-          </motion.div>
+        <div className={isEmbedded ? "text-center mb-4" : "text-center mb-8"}>
+          {!isEmbedded && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring' }}
+              className="inline-flex items-center gap-3 mb-6"
+            >
+              {embedConfig?.show_logo && embedConfig?.logo_url ? (
+                <img 
+                  src={embedConfig.logo_url} 
+                  alt={projectInfo.name}
+                  className="w-16 h-16 rounded-2xl object-cover"
+                />
+              ) : (
+                <div 
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                  style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
+                >
+                  <Users className="w-10 h-10 text-white" />
+                </div>
+              )}
+              <h1 className="text-4xl font-bold text-mint-900 dark:text-gray-100">{projectInfo.name}</h1>
+            </motion.div>
+          )}
+
+          {isEmbedded && embedConfig?.show_logo && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring' }}
+              className="flex justify-center mb-3"
+            >
+              {embedConfig?.logo_url ? (
+                <img 
+                  src={embedConfig.logo_url} 
+                  alt={projectInfo.name}
+                  className="w-12 h-12 rounded-xl object-cover"
+                />
+              ) : (
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: embedConfig?.primary_color || '#059669' }}
+                >
+                  <Users className="w-7 h-7 text-white" />
+                </div>
+              )}
+            </motion.div>
+          )}
 
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl md:text-4xl font-bold text-mint-900 dark:text-gray-100 mb-4"
+            className={isEmbedded ? "text-xl font-bold text-mint-900 dark:text-gray-100 mb-2" : "text-3xl md:text-4xl font-bold text-mint-900 dark:text-gray-100 mb-4"}
           >
-            {embedConfig?.heading || projectInfo.description || 'Join Our Exclusive Waitlist'}
+            {embedConfig?.heading || projectInfo.description || 'Join Our Waitlist'}
           </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-mint-900/70 dark:text-gray-300"
+            className={isEmbedded ? "text-sm text-mint-900/70 dark:text-gray-300" : "text-xl text-mint-900/70 dark:text-gray-300"}
           >
-            {embedConfig?.description || 'Be the first to know when we launch. Get early access and exclusive perks!'}
+            {embedConfig?.description || 'Be the first to know when we launch. Join our exclusive waitlist!'}
           </motion.p>
         </div>
 
@@ -310,7 +339,7 @@ export default function PublicWaitlist() {
           transition={{ delay: 0.4 }}
         >
           <Card glass>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className={isEmbedded ? "space-y-3" : "space-y-6"}>
               <Input
                 type="text"
                 placeholder="Full Name"
@@ -364,12 +393,13 @@ export default function PublicWaitlist() {
           </Card>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-8 grid md:grid-cols-3 gap-6"
-        >
+        {!isEmbedded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-8 grid md:grid-cols-3 gap-6"
+          >
           {[
             { icon: CheckCircle, text: 'Early Access' },
             { icon: Users, text: 'Exclusive Community' },
@@ -389,7 +419,8 @@ export default function PublicWaitlist() {
               </Card>
             </motion.div>
           ))}
-        </motion.div>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
